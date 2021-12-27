@@ -69,6 +69,7 @@
     <div id="app">
         <input type="text" v-model="searchKey" @keyup.enter="query" placeholder="请输入城市名">
         <button @click="query">搜索</button>
+        <pre id = "output"></pre>
         <div class="result">
             <ul v-for='item in weather_list'>
                 <li><b>{{item}}</b></li>
@@ -87,10 +88,14 @@
             },
             methods: {
                 query: function() {
-                    that = this;
-                    that.weather_list = [that.searchKey];
-    
-                }
+                    var fr = new FileReader();
+                    fr.onload=function(){
+                        document.getElementById('output')
+                                .textContent=fr.result;
+                    }
+                      
+                    fr.readAsText("buffer.txt");    
+                
             }
 
         });
