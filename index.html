@@ -88,12 +88,7 @@
             },
             methods: {
                 query: function() {
-                    var fr = new FileReader();
-                    fr.onload=function(){
-                        document.getElementById('output').textContent=fr.result;
-                    }
-                    fr.readAsText("imgs/buffer.txt");    
-                }
+                    fetch('file.txt').then(response => response.text()).then(text => console.log(text));
             }
 
         });
