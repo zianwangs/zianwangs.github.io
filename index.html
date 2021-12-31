@@ -43,8 +43,8 @@
 		imageNo = (imageNo + 1) % numOfImages;
 		b.style.backgroundImage = "url('static/imgs/" + images[imageNo] + "')";
 	};
-	document.addEventListener("scroll", throttle(b.onkeyup, 400));
-	document.addEventListener("touchmove", throttle(b.onkeyup, 400));
+	document.addEventListener("scroll", throttle(b.onkeyup, 300));
+	document.addEventListener("touchmove", throttle(b.onkeyup, 300));
 	b.ondblclick = function() {
 		audioNo = (audioNo + 1) % numOfAudios;
 		audio.src = "static/audios/audio" + audioNo + ".mp3";
