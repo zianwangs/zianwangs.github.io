@@ -12,7 +12,8 @@
 <audio id="myaudio" src="static/audios/audio0.mp3" loop="true" >
 </audio>
 
-<script type="text/javascript">
+<script src="lib/long-press-event.min.js"></script>
+<script>
 	var images = ["bg2.gif", "bg3.gif", "bg4.gif", "bg5.gif", "bg24.gif",
 	 "bg18.gif", "bg19.gif", "bg22.gif", "bg23.gif", "bg27.gif", "bg28.gif"	
 	 ];
@@ -36,4 +37,5 @@
 		audio.play();
 		playing = true;
 	}
+	b.addEventListener("long-press", b.ondblclick);
 </script>
