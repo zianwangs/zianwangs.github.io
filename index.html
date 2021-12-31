@@ -7,8 +7,18 @@
     }
 </style>
 
-<body>
- </body>
+<body id = "b">
+</body>
 
-<audio id="myaudio" src="bys.mp3" controls="controls" autoplay loop="true" >
+<audio id="myaudio" src="bys.mp3" loop="true" >
 </audio>
+
+<script type="text/javascript">
+	var audio = document.getElementById("myaudio");
+	var b = document.getElementById("b");
+	var playing = false;
+	b.onclick = function() {
+		playing = !playing;
+		playing ? audio.play() : audio.pause();
+	};
+</script>
