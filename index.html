@@ -26,7 +26,7 @@
 	b.onclick = function() {
 		(playing = !playing) ? audio.play() : audio.pause();
 	};
-	b.onkeyup = function() {
+	b.onkeyup = b.touchmove = function() {
 		imageNo = (imageNo + 1) % numOfImages;
 		b.style.backgroundImage = "url('static/imgs/" + images[imageNo] + "')";
 	};
