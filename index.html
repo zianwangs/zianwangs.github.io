@@ -1,1 +1,100 @@
-Hello world
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        h2 {
+            text-align: center;
+            font-size: 30px;
+            margin-top: 15px;
+            margin-bottom: 20px;
+        }
+        body>div {
+            text-align: center;
+        }
+        input {
+            width: 300px;
+            height: 20px;
+            margin-right: 10px;
+            margin-bottom: 10px;;
+            border: 1px solid skyblue;
+        }
+
+        img {
+            width: 250px;
+            height: 200px;
+            display: block;
+            text-align: center;
+            background-repeat: no-repeat;
+            margin: 0 auto;
+        }
+        ul {
+            margin: 0;
+            margin-right: 10px;
+            width: 150px;
+            float: left;
+
+            height: 100%;
+        }
+        li {
+            padding-top: 20px;
+            text-align: center;
+            
+            list-style: none;
+            margin-right: 10px;
+        }
+
+        .result {
+            margin: 20px auto;
+            width: 800px;
+            height: 250px;
+    
+        }
+    </style>
+</head>
+    
+<body>
+    <img src="https://img0.baidu.com/it/u=3605006026,2273382621&fm=26&fmt=auto&gp=0.jpg">
+    <h2>全国各地城市天气查询</h2>
+    <div id="app">
+        <input type="text" v-model="searchKey" @keyup.enter="query" placeholder="请输入城市名">
+        <button @click="query">搜索</button>
+        <div class="result">
+            <ul v-for='item in weather_list'>
+                <li><b>{{item}}</b></li>
+
+            </ul>
+        </div>
+        
+    </div>
+    
+    <script>
+        var app = new Vue({
+            el:"#app",
+            data:{
+                weather_list:[],
+                searchKey:''
+            },
+            methods: {
+                query: function() {
+                    that = this;
+                    that.weather_list = [that.searchKey];
+    
+                }
+            }
+
+        });
+    </script>
+    
+</body>
+</html>
