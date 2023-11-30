@@ -1,4 +1,4 @@
-# <a href="https://zianwangs.github.io/retro">1. Retrowave Notebook</a> 
+# <a href="https://zianwangs.github.io/retro">I. Vaporwave Research Institute</a> 
 ## 蒸気波学研究所
 
 
@@ -11,7 +11,7 @@
 
 <br/>
 
-# <a href="https://zianwangs.github.io/plan">2. Twelve Major Instrumentality Project</a>
+# <a href="https://zianwangs.github.io/plan">II. Twelve Major Instrumentality Project</a>
 ## 十二大调补完计划
 
 |             | Music on/off | ♯   | ♭ |
