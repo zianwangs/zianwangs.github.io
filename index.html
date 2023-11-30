@@ -27,13 +27,23 @@
 	var playing = false;
 	var imageNo = 0;
 	var audioNo = 0;
+	function throttle(fn, wait) {
+	  var time = Date.now();
+	  return function() {
+	    if ((time + wait - Date.now()) < 0) {
+	      fn();
+	      time = Date.now();
+	    }
+	  }
+	}
 	b.onclick = function() {
 		(playing = !playing) ? audio.play() : audio.pause();
 	};
-	b.onkeyup = b.onscroll = function() {
+	b.onkeyup = function() {
 		imageNo = (imageNo + 1) % numOfImages;
 		b.style.backgroundImage = "url('static/imgs/" + images[imageNo] + "')";
 	};
+	document.addEventListener("scroll", throttle(b.onkeyup, 700));
 	b.ondblclick = function() {
 		audioNo = (audioNo + 1) % numOfAudios;
 		audio.src = "static/audios/audio" + audioNo + ".mp3";
