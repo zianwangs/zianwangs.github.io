@@ -1,0 +1,87 @@
+<style type="text/css">
+
+    body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+    }
+
+    #Symbol {
+        position: relative;
+        float: left;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 150px;
+        line-height: 150px;
+    
+    }
+    text {
+        font-size: 100px;
+    }
+</style>
+
+
+<body id = "b" font-size="30px">
+    <div id="Symbol"></div>
+    
+</body>
+
+<audio id="myaudio" loop="true" >
+</audio>
+
+<script>
+    const TONES = 12;
+    /* TODO: parallel */
+    // const parallels = [
+
+    // ];
+    const keySigs = {
+        0: "C",
+        1: "C<text>♯</text>",
+        2: "D",
+        3: "E<text>♭</text>",
+        4: "E",
+        5: "F",
+        6: "F<text>♯</text>",
+        7: "G",
+        8: "A<text>♭</text>",
+        9: "A",
+        10: "B<text>♭</text>",
+        11: "B",
+    }
+    var curParallel = 0;
+    var curTone = 7 /* G */;
+	var audio = document.getElementById("myaudio");
+	var symbol = document.getElementById("Symbol");
+    symbol.innerHTML = keySigs[curTone];
+	var playing = false;
+    var audioPlayController = () => {
+        audio.src = "static/audios/" + curTone + "/" + curParallel; 
+		(playing = !playing) ? audio.play() : audio.pause();
+	};
+    var audioSwitchController = () => {
+        symbol.innerHTML = keySigs[curTone];
+        audio.src = "static/audios/" + curTone + "/" + curParallel;
+        if (playing) {
+            audio.play();
+        }
+    }
+    b.onclick = audioPlayController;
+	b.onkeyup = function(e) {
+        if (e.keyCode == 13 /* Enter */ || e.keyCode == 32 /* Space */) {
+            audioPlayController();
+        } else if (e.keyCode == 87 /* W */ || e.keyCode == 38 /* Up */) {
+            /* TODO */
+        } else if (e.keyCode == 83 /* S */ || e.keyCode == 40 /* Down */) {
+            /* TODO */
+        } else if (e.keyCode == 68 /* D */ || e.keyCode == 39 /* Right */) {
+            curTone = (curTone + 1) % TONES;
+            audioSwitchController();
+        } else if (e.keyCode == 65 /* A */ || e.keyCode == 37 /* Left */) {
+            curTone = (curTone + TONES - 1) % TONES;
+            audioSwitchController();
+        }	
+	};
+</script>
