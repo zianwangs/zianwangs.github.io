@@ -1,3 +1,5 @@
+<header>根</header>
+
 # <a href="https://zianwangs.github.io/retro">1. Retrowave Notebook</a> 
 ## 蒸気波学研究所
 
@@ -12,9 +14,9 @@
 <br/>
 
 # <a href="https://zianwangs.github.io/plan">2. Twelve Major Instrumentality Project</a>
-## 十二大調補完計劃
+## 十二大调补完计划
 
 |             | Music on/off | ♯   | ♭ |
 | :-: | :-: | :-: | :-: |
-| Desktop     |     click    |  → / D | ← / A
+| Desktop     |     click / Enter / Space   |  → / D | ← / A
 
