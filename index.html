@@ -2,23 +2,36 @@
     body {
         width: 100%;
         height: 100%;
-        background-repeat: no-repeat;
-        background-image: url("bg1.png");
+        background-image: url("static/imgs/bg1.png");
     }
 </style>
 
 <body id = "b">
 </body>
 
-<audio id="myaudio" src="bys.mp3" loop="true" >
+<audio id="myaudio" src="static/audios/audio0.mp3" loop="true" >
 </audio>
 
 <script type="text/javascript">
+	var images = ["bg1.png", "bg2.gif", "bg3.gif", "bg6.jpg", "bg4.gif", "bg7.jpg", "bg5.gif"];
+	var numOfImages = images.length;
+	var numOfAudios = 4;
 	var audio = document.getElementById("myaudio");
 	var b = document.getElementById("b");
 	var playing = false;
+	var imageNo = 0;
+	var audioNo = 0;
 	b.onclick = function() {
-		playing = !playing;
-		playing ? audio.play() : audio.pause();
+		(playing = !playing) ? audio.play() : audio.pause();
 	};
+	b.onkeyup = function() {
+		imageNo = (imageNo + 1) % numOfImages;
+		b.style.backgroundImage = "url('static/imgs/" + images[imageNo] + "')";
+	};
+	b.ondblclick = function() {
+		audioNo = (audioNo + 1) % numOfAudios;
+		audio.src = "static/audios/audio" + audioNo + ".mp3";
+		audio.play();
+		playing = true;
+	}
 </script>
