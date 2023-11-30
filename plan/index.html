@@ -54,12 +54,12 @@
     var curParallel = 0;
     var curTone = 7 /* G */;
 	var audio = document.getElementById("myaudio");
-	var symbol = document.getElementById("Symbol");
+    var symbol = document.getElementById("Symbol");
     symbol.innerHTML = keySigs[curTone];
-	var playing = false;
+    var playing = false;
     var audioPlayController = () => {
-        audio.src = "static/audios/" + curTone + "/" + curParallel; 
-		(playing = !playing) ? audio.play() : audio.pause();
+        audio.src = "static/audios/" + curTone + "/" + curParallel;
+        (playing = !playing) ? audio.play() : audio.pause();
 	};
     var audioSwitchController = () => {
         symbol.innerHTML = keySigs[curTone];
