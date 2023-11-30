@@ -1,8 +1,5 @@
 <style type="text/css">
-
     body {
-        width: 100%;
-        height: 100%;
         margin: 0;
         padding: 0;
     }
@@ -15,15 +12,15 @@
         transform: translate(-50%, -50%);
         font-size: 150px;
         line-height: 150px;
-    
     }
+
     text {
         font-size: 100px;
     }
 </style>
 
 
-<body id = "b" font-size="30px">
+<body id = "b">
     <div id="Symbol"></div>
     
 </body>
@@ -62,7 +59,7 @@
         (playing = !playing) ? audio.play() : audio.pause();
 	};
     var audioSwitchController = (delta) => {
-        curTone = (curTone + delta) % TONES;
+        curTone = (curTone + delta + TONES) % TONES;
         symbol.innerHTML = keySigs[curTone];
         audio.src = "static/audios/" + curTone + "/" + curParallel;
         if (playing) {
@@ -80,19 +77,19 @@
         } else if (e.keyCode == 68 /* D */ || e.keyCode == 39 /* Right */) {
             audioSwitchController(1);
         } else if (e.keyCode == 65 /* A */ || e.keyCode == 37 /* Left */) {
-            audioSwitchController(TONES - 1);
+            audioSwitchController(-1);
         }	
     };
-    function throttle(fn, wait) {
+    var throttle = (fn, wait) => {
         var time = Date.now();
-        return function() {
+        return () => {
             if ((time + wait - Date.now()) < 0) {
                 fn();
                 time = Date.now();
             }
         }
     }
-    document.addEventListener("scroll", throttle(() => audioSwitchController(1), 300));
+    document.addEventListener("touchmove", throttle(() => audioSwitchController(1), 300));
     // document.addEventListener("touchmove", throttle(throttle(() => audioSwitchController(1), 300));
 
 </script>
