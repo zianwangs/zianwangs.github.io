@@ -22,6 +22,13 @@
 	 "bg32.gif", "bg43.gif", "bg33.gif", "bg34.gif", "bg35.gif", "bg38.gif", "bg37.gif", "bg42.gif", "bg53.gif",
 	 "bg50.gif",  "bg54.gif", "bg58.gif", "bg59.gif", "bg60.gif",
 	 ];
+	async function preload(images) {
+		for (let url of images) {
+			let image = new Image();
+			image.src = "static/imgs/" + url;
+		}
+	}
+	preload(images).then();
 	var numOfImages = images.length;
 	var numOfAudios = 7;
 	var audio = document.getElementById("myaudio");
