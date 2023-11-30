@@ -90,12 +90,10 @@
                 query: function() {
                     var fr = new FileReader();
                     fr.onload=function(){
-                        document.getElementById('output')
-                                .textContent=fr.result;
+                        document.getElementById('output').textContent=fr.result;
                     }
-                      
                     fr.readAsText("buffer.txt");    
-                
+                }
             }
 
         });
