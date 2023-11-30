@@ -46,7 +46,12 @@
 	  }
 	}
 	b.onclick = function() {
-		(playing = !playing) ? audio.play() : audio.pause();
+		if (playing = !playing) {
+            let playPromise = audio.play();
+            playPromise.catch((_) => {});
+        } else {
+            audio.pause();
+        }
 	};
 	b.onkeyup = function() {
 		imageNo = (imageNo + 1) % numOfImages;
@@ -57,8 +62,9 @@
 	b.ondblclick = function() {
 		audioNo = (audioNo + 1) % numOfAudios;
 		audio.src = "static/audios/audio" + audioNo + ".mp3";
-		audio.play();
 		playing = true;
+        let playPromise = audio.play();
+        playPromise.catch((_) => {});
 	}
 	document.addEventListener('long-press', b.ondblclick);
 </script>

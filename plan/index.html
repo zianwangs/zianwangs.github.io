@@ -57,14 +57,20 @@
     symbol.innerHTML = keySigs[curTone];
     var playing = false;
     var audioPlayController = () => {
-        (playing = !playing) ? audio.play() : audio.pause();
+        if (playing = !playing) {
+            let playPromise = audio.play();
+            playPromise.catch((_) => {});
+        } else {
+            audio.pause();
+        }
     };
     var audioSwitchController = (delta) => {
         curTone = (curTone + delta + TONES) % TONES;
         symbol.innerHTML = keySigs[curTone];
         audio.src = "static/audios/" + curTone + "/" + curParallel;
         if (playing) {
-            audio.play();
+            let playPromise = audio.play();
+            playPromise.catch((_) => {});
         }
     }
     b.onclick = audioPlayController;
