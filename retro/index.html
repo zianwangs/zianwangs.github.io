@@ -49,11 +49,11 @@
 	}
 	b.onclick = function() {
 		if (playing = !playing) {
-            let playPromise = audio.play();
-            playPromise.catch((_) => {});
-        } else {
-            audio.pause();
-        }
+			let playPromise = audio.play();
+			playPromise.catch((_) => {});
+		} else {
+			audio.pause();
+		}
 	};
 	b.onkeyup = function() {
 		imageNo = (imageNo + 1) % numOfImages;
@@ -69,4 +69,5 @@
 		playPromise.catch((_) => {});
 	}
 	document.addEventListener('long-press', b.ondblclick);
+	
 </script>
