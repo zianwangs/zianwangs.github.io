@@ -17,4 +17,5 @@
 |             | Music on/off | ♯   | ♭ |
 | :-: | :-: | :-: | :-: |
 | Desktop     |     click / Enter / Space   |  → / D | ← / A
+| Mobile      | tap          | swipe   
 
