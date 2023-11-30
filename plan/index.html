@@ -69,7 +69,7 @@
         }
     }
     b.onclick = audioPlayController;
-	b.onkeyup = function(e) {
+    b.onkeyup = function(e) {
         if (e.keyCode == 13 /* Enter */ || e.keyCode == 32 /* Space */) {
             audioPlayController();
         } else if (e.keyCode == 87 /* W */ || e.keyCode == 38 /* Up */) {
@@ -83,5 +83,5 @@
             curTone = (curTone + TONES - 1) % TONES;
             audioSwitchController();
         }	
-	};
+    };
 </script>
