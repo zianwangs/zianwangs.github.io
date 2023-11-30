@@ -31,11 +31,10 @@
 		imageNo = (imageNo + 1) % numOfImages;
 		b.style.backgroundImage = "url('static/imgs/" + images[imageNo] + "')";
 	};
-	b.ondblclick = function() {
+	b.ondblclick = b.ontouchcancel = function() {
 		audioNo = (audioNo + 1) % numOfAudios;
 		audio.src = "static/audios/audio" + audioNo + ".mp3";
 		audio.play();
 		playing = true;
 	}
-	document.addEventListener("long-press", b.ondblclick);
 </script>
