@@ -90,6 +90,26 @@
             }
         }
     }
-    document.addEventListener("touchmove", throttle(() => audioSwitchController(1), 300));
+    var touchStartX, touchStartY, touchStartTime;
+    var handleTouchStart = (e) => {
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+        touchStartTime = Date.now();
+    };
+    var handleTouchEnd = (e) => {
+        let deltaX = e.changedTouches[0].clientX - touchStartX;
+        let deltaY = e.changedTouches[0].clientY - touchStartY;
+        if (Date.now() - touchStartTime < 150) {
+            return;
+        } else if (Math.abs(deltaX) - Math.abs(deltaY) < 100) {
+            return;
+        } else if (deltaX > 0) {
+            audioSwitchController(-1);
+        } else {
+            audioSwitchController(1);
+        }
+    };
+    document.addEventListener("touchstart", e => handleTouchStart(e));
+    document.addEventListener("touchend", e => handleTouchEnd(e));
 
 </script>
