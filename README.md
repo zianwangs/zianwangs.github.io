@@ -1,5 +1,3 @@
-<header>根</header>
-
 # <a href="https://zianwangs.github.io/retro">1. Retrowave Notebook</a> 
 ## 蒸気波学研究所
 
