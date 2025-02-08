@@ -14,8 +14,8 @@
 # <a href="https://zianwangs.github.io/plan">II. Twelve Major Instrumentality Project</a>
 ## 十二大调补完计划
 
-|             | Music on/off | ♯   | ♭ |
-| :-: | :-: | :-: | :-: |
-| Desktop     |     click / Enter / Space   |  → / D | ← / A
-| Mobile      | tap          | swipe right | swipe left
+|             | Music on/off | ♯   | ♭ | ♮ |
+| :-: | :-: | :-: | :-: | :-: |
+| Desktop     |     click / Enter / Space   |  → / D | ← / A | ↓ / S , ↑ / W |
+| Mobile      | tap          | swipe right | swipe left | swipe down / up |
 
