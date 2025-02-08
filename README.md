@@ -6,7 +6,7 @@
 
 |             | Music on / off | Next Track   | Next Slide |
 | :-: | :-: | :-: | :-: |
-| Desktop     |     click    | double-click | scroll/press any key
+| Desktop     |     click    | double-click | scroll / press any key
 | Mobile      | tap          | long-press   |  swipe
 
 <br/>
