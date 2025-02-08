@@ -140,10 +140,10 @@
         if (Math.abs(deltaY) - Math.abs(deltaX) >= 70) {
             // swipe vertically
             if (deltaY > 0) {
-                // swipe up
+                // swipe down(previous)
                 audioSwitchController(0, -1);
             } else {
-                // swipe down
+                // swipe up(next)
                 audioSwitchController(0, 1);
             }
         }
