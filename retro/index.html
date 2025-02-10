@@ -10,63 +10,63 @@
 
 <script src="lib/long-press-event.min.js"></script>
 
-<body id = "b">
+<body id="b">
 </body>
 
 <audio id="myaudio" src="static/audios/audio0.mp3" loop="true" >
 </audio>
 
 <script>
-	var images = [
-		"bg36.gif", "bg2.gif", "bg3.gif", "bg47.gif" , "bg4.gif", "bg5.gif", "bg24.gif",
-		"bg18.gif", "bg19.gif", "bg22.gif", "bg23.gif", "bg27.gif",  "bg28.gif", "bg30.gif",
-		"bg31.gif", "bg32.gif", "bg43.gif", "bg33.gif", "bg34.gif", "bg35.gif", "bg38.gif",
-		"bg37.gif", "bg42.gif", "bg53.gif", "bg50.gif",  "bg54.gif", "bg58.gif", "bg59.gif",
-		"bg60.gif",
-	];
-	function preload(images) {
-		for (let url of images) {
-			let image = new Image();
-			image.src = "static/imgs/" + url;
-		}
-	}
-	preload(images);
-	var numOfImages = images.length;
-	var numOfAudios = 7;
-	var audio = document.getElementById("myaudio");
-	var b = document.getElementById("b");
-	var playing = false;
-	var imageNo = 0;
-	var audioNo = 0;
-	function throttle(fn, wait) {
-		let time = Date.now();
-		return function() {
-			if ((time + wait - Date.now()) < 0) {
-				fn();
-				time = Date.now();
-			}
-		}
-	}
-	b.onclick = function() {
-		if (playing = !playing) {
-			let playPromise = audio.play();
-			playPromise.catch((_) => {});
-		} else {
-			audio.pause();
-		}
-	};
-	b.onkeyup = function() {
-		imageNo = (imageNo + 1) % numOfImages;
-		b.style.backgroundImage = "url('static/imgs/" + images[imageNo] + "')";
-	};
-	document.addEventListener("scroll", throttle(b.onkeyup, 300));
-	document.addEventListener("touchmove", throttle(b.onkeyup, 300));
-	b.ondblclick = function() {
-		audioNo = (audioNo + 1) % numOfAudios;
-		audio.src = "static/audios/audio" + audioNo + ".mp3";
-		playing = true;
-		let playPromise = audio.play();
-		playPromise.catch((_) => {});
-	}
-	document.addEventListener('long-press', b.ondblclick);
+    var images = [
+        "bg36.gif", "bg2.gif",  "bg3.gif",  "bg47.gif", "bg4.gif",  "bg5.gif",  "bg24.gif",
+        "bg18.gif", "bg19.gif", "bg22.gif", "bg23.gif", "bg27.gif", "bg28.gif", "bg30.gif",
+        "bg31.gif", "bg32.gif", "bg43.gif", "bg33.gif", "bg34.gif", "bg35.gif", "bg38.gif",
+        "bg37.gif", "bg42.gif", "bg53.gif", "bg50.gif", "bg54.gif", "bg58.gif", "bg59.gif",
+        "bg60.gif",
+    ];
+    function preload(images) {
+        for (let url of images) {
+            let image = new Image();
+            image.src = "static/imgs/" + url;
+        }
+    }
+    preload(images);
+    var numOfImages = images.length;
+    var numOfAudios = 7;
+    var audio = document.getElementById("myaudio");
+    var b = document.getElementById("b");
+    var playing = false;
+    var imageNo = 0;
+    var audioNo = 0;
+    function throttle(fn, wait) {
+        let time = Date.now();
+        return function() {
+            if ((time + wait - Date.now()) < 0) {
+                fn();
+                time = Date.now();
+            }
+        }
+    }
+    b.onclick = function() {
+        if (playing = !playing) {
+            let playPromise = audio.play();
+            playPromise.catch((_) => {});
+        } else {
+            audio.pause();
+        }
+    };
+    b.onkeyup = function() {
+        imageNo = (imageNo + 1) % numOfImages;
+        b.style.backgroundImage = "url('static/imgs/" + images[imageNo] + "')";
+    };
+    document.addEventListener("scroll", throttle(b.onkeyup, 300));
+    document.addEventListener("touchmove", throttle(b.onkeyup, 300));
+    b.ondblclick = function() {
+        audioNo = (audioNo + 1) % numOfAudios;
+        audio.src = "static/audios/audio" + audioNo + ".mp3";
+        playing = true;
+        let playPromise = audio.play();
+        playPromise.catch((_) => {});
+    }
+    document.addEventListener('long-press', b.ondblclick);
 </script>
