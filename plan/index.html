@@ -77,7 +77,7 @@
     var currentTone = 7 /* G */;
     var currentSong = currentSongPerTone[currentTone];
     var audio = document.getElementById("myaudio");
-    audio.src = "static/audios/" + currentTone + "/" + currentSong;
+    audio.src = "static/audios/" + currentTone + "/" + currentSong + ".mp3";
     var symbol = document.getElementById("Symbol");
     symbol.innerHTML = keySigs[currentTone];
     var playing = false;
@@ -94,7 +94,7 @@
         currentSong = (currentSongPerTone[currentTone] + songDelta + songsPerTone[currentTone]) % songsPerTone[currentTone];
         currentSongPerTone[currentTone] = currentSong;
         symbol.innerHTML = keySigs[currentTone];
-        audio.src = "static/audios/" + currentTone + "/" + currentSong;
+        audio.src = "static/audios/" + currentTone + "/" + currentSong + ".mp3";
         if (playing) {
             let playPromise = audio.play();
             playPromise.catch((_) => {});
