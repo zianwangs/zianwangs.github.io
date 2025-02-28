@@ -251,8 +251,8 @@
                         <p class="project-subtitle">蒸気波学研究所</p>
                         
                         <div class="tabs">
-                            <div class="tab active" data-tab="desktop1">Desktop</div>
-                            <div class="tab" data-tab="mobile1">Mobile</div>
+                            <div class="tab desktop-tab" data-tab="desktop1">Desktop</div>
+                            <div class="tab mobile-tab" data-tab="mobile1">Mobile</div>
                         </div>
                         
                         <div id="desktop1" class="tab-content active">
@@ -323,8 +323,8 @@
                         <p class="project-subtitle">十二大调补完计划</p>
                         
                         <div class="tabs">
-                            <div class="tab active" data-tab="desktop2">Desktop</div>
-                            <div class="tab" data-tab="mobile2">Mobile</div>
+                            <div class="tab desktop-tab" data-tab="desktop2">Desktop</div>
+                            <div class="tab mobile-tab" data-tab="mobile2">Mobile</div>
                         </div>
                         
                         <div id="desktop2" class="tab-content active">
@@ -434,6 +434,24 @@
                     document.getElementById(tabId).classList.add('active');
                 });
             });
+
+            const isMobileDevice = () => /android|iphone|ipad|ipod|blackberry|opera mini|iemobile|wpdesktop/i.test(navigator.userAgent);
+        
+            const activateTabs = () => {
+                document.querySelectorAll(isMobileDevice() ? ".mobile-tab" : ".desktop-tab").forEach(tab => {
+                    const parent = tab.parentElement.parentElement;
+                    tab.classList.add('active');
+                    // Hide all tab content
+                    parent.querySelectorAll('.tab-content').forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    // Show selected tab content
+                    const tabId = tab.getAttribute('data-tab');
+                    document.getElementById(tabId).classList.add('active');
+                });
+            };
+            
+            activateTabs();
             
             // Subtle parallax effect on hover
             const cards = document.querySelectorAll('.project-card');
