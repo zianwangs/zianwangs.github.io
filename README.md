@@ -3,4 +3,4 @@
 
 
 
-
+![thumbnail](static/imgs/thumbnail.png)
