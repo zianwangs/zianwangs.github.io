@@ -17,7 +17,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            /* height: 100vh; */
             user-select: none;
         }
 
@@ -35,7 +35,8 @@
             position: relative;
             width: 70vmin;
             height: 70vmin;
-            margin-bottom: 25vh;
+            margin-top: 1em;
+            margin-bottom: 11em;
         }
 
         .wheel {
@@ -218,8 +219,9 @@
         }
 
         #prev-song>span, #next-song>span {
-            font-size: min(4vmin, 32px);
-            margin-top: -0.1vmin;
+            font-weight: 600;
+            font-size: min(5vmin, 32px);
+            margin-top: -0.5vmin;
         }
     </style>
 </head>
@@ -636,7 +638,7 @@
             
         }
         changeIndent();
-        document.body.style.overflow = "hidden"; 
+        // document.body.style.overflow = "hidden"; 
         
         
 
