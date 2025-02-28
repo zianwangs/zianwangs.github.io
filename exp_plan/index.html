@@ -35,7 +35,7 @@
             position: relative;
             width: 65vmin;
             height: 65vmin;
-            margin-top: -25vmin;
+            margin-top: -25vh;
             /* margin-bottom: 0vmin; */
         }
 
@@ -224,7 +224,8 @@
         #prev-song>span, #next-song>span {
             font-weight: 600;
             font-size: min(5vmin, 32px);
-            margin-top: -0.5vmin;
+            margin-top: -1.1vmin;
+            font-size: 1.5em;
         }
     </style>
 </head>
@@ -479,6 +480,7 @@
         }
         
         function handleTouchStart(e) {
+            e.preventDefault()
             const touch = e.touches[0];
             const mouseEvent = new MouseEvent("mousedown", {
                 clientX: touch.clientX,
