@@ -404,6 +404,7 @@
         
         // Touch events
         wheel.addEventListener("touchstart", handleTouchStart);
+        // wheel.addEventListener("touchend", handleTouchEnd);
         document.addEventListener("touchmove", handleTouchMove);
         document.addEventListener("touchend", handleTouchEnd);
         
@@ -497,7 +498,7 @@
                 clientY: touch.clientY
             });
             drag(mouseEvent);
-            e.preventDefault();
+            // e.preventDefault();
         
         }
         
