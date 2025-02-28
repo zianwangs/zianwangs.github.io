@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sensual Desire Notebook</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Mono&family=Work+Sans:wght@300;400;500&display=swap');
+        
+        :root {
+            --primary: #5c6ac4;
+            --secondary: #f0f1f5;
+            --text: #2d3142;
+            --background: #f9f9f9;
+            --accent: #d8d9f2;
+            --table-border: #e0e0e0;
+            --table-header: #f5f5f7;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Work Sans', sans-serif;
+            background-color: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+        }
+        
+        header {
+            margin-bottom: 4rem;
+        }
+        
+        h1 {
+            font-family: '' 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+            /* font-family: 'Space Mono', monospace; */
+            font-size: 2.7rem;
+            margin-bottom: 1rem;
+            color: var(--text);
+            font-weight: 400;
+            letter-spacing: -0.5px;
+        }
+        
+        .subtitle {
+            font-size: 1.5rem;
+            color: #666;
+            font-weight: 300;
+        }
+        
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 3rem;
+            margin-top: 2rem;
+        }
+        
+        .project-card {
+            background: white;
+            border-radius: 5px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        .project-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .project-image {
+            width: 100%;
+            height: 240px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .project-image::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(92, 106, 196, 0.05);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .project-card:hover .project-image::after {
+            opacity: 1;
+        }
+        
+        .project-content {
+            padding: 1.5rem;
+        }
+        
+        .project-title {
+            font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+            font-size: 1.4rem;
+            margin-bottom: 0.4rem;
+            color: var(--text);
+        }
+
+        .project-subtitle {
+            font-size: 1.1rem;
+            color: #666;
+            font-weight: 300;
+            margin-bottom: 0.9rem;
+        }
+        
+        .interaction-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1.5rem;
+            font-size: 0.85rem;
+        }
+        
+        .interaction-table caption {
+            font-weight: 500;
+            text-align: left;
+            padding-bottom: 0.5rem;
+            color: var(--primary);
+        }
+        
+        .interaction-table th {
+            background-color: var(--table-header);
+            border: 1px solid var(--table-border);
+            padding: 0.5rem;
+            text-align: left;
+            font-weight: 500;
+        }
+        
+        .interaction-table td {
+            border: 1px solid var(--table-border);
+            padding: 0.5rem;
+            vertical-align: top;
+        }
+        
+        .interaction-table tr:nth-child(even) {
+            background-color: #fafafa;
+        }
+        
+        .btn {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            padding: 0.6rem 1.2rem;
+            border-radius: 3px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: background 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn:hover {
+            background: #4a57a6;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 4rem;
+            padding: 2rem 0;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        /* Subtle dot pattern background */
+        .dot-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: radial-gradient(var(--accent) 1px, transparent 1px);
+            background-size: 20px 20px;
+            opacity: 0.3;
+            z-index: -1;
+        }
+        
+        .tabs {
+            display: flex;
+            margin-bottom: 0.5rem;
+        }
+        
+        .tab {
+            padding: 0.3rem 0.8rem;
+            cursor: pointer;
+            background: #f0f1f5;
+            border-radius: 3px 3px 0 0;
+            margin-right: 0.3rem;
+            font-size: 0.8rem;
+        }
+        
+        .tab.active {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .grid-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dot-pattern"></div>
+    
+    <div class="container">
+        <header>
+            <h1>Sensual Desire Notebook</h1>
+            <p class="subtitle">声色犬马记事簿</p>
+        </header>
+        
+        <main>
+            <div class="grid-container">
+                <!-- Project 1 -->
+                <a href="https://zianwangs.github.io/retro" class="project-card">
+                    <div class="project-image" style="background-image: url('static/imgs/retro_thumbnail.gif')"></div>
+                    <div class="project-content">
+                        <h2 class="project-title">Vaporwave Research Institute</h2>
+                        <p class="project-subtitle">蒸気波学研究所</p>
+                        
+                        <div class="tabs">
+                            <div class="tab active" data-tab="desktop1">Desktop</div>
+                            <div class="tab" data-tab="mobile1">Mobile</div>
+                        </div>
+                        
+                        <div id="desktop1" class="tab-content active">
+                            <table class="interaction-table">
+                                <caption>Desktop User Interaction Guide</caption>
+                                <thead>
+                                    <tr>
+                                        <th>Interaction</th>
+                                        <th>Effect</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Click</td>
+                                        <td>Music On / Off</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Double Click</td>
+                                        <td>Next Track</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Scroll</td>
+                                        <td>Next Slide</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Press Any Key</td>
+                                        <td>Next Slide</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div id="mobile1" class="tab-content">
+                            <table class="interaction-table">
+                                <caption>Mobile User Interaction Guide</caption>
+                                <thead>
+                                    <tr>
+                                        <th>Interaction</th>
+                                        <th>Effect</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Tap</td>
+                                        <td>Music On / Off</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Long Press</td>
+                                        <td>Next Track</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Swipe</td>
+                                        <td>Next Slide</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="btn">Enter</div>
+                    </div>
+                </a>
+                
+                <!-- Project 2 -->
+                <a href="https://zianwangs.github.io/plan" class="project-card">
+                    <div class="project-image" style="background-image: url('static/imgs/plan_thumbnail.png')"></div>
+                    <div class="project-content">
+                        <h2 class="project-title">12 Major Instrumentality Project</h2>
+                        <p class="project-subtitle">十二大调补完计划</p>
+                        
+                        <div class="tabs">
+                            <div class="tab active" data-tab="desktop2">Desktop</div>
+                            <div class="tab" data-tab="mobile2">Mobile</div>
+                        </div>
+                        
+                        <div id="desktop2" class="tab-content active">
+                            <table class="interaction-table">
+                                <caption>Desktop User Interaction Guide</caption>
+                                <thead>
+                                    <tr>
+                                        <th>Interaction</th>
+                                        <th>Effect</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Click</td>
+                                        <td>Music On / Off</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Press Enter / Space</td>
+                                        <td>Music On / Off</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Press → / D</td>
+                                        <td>♯</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Press ← / A</td>
+                                        <td>♭</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Press ↓ / S , ↑ / W</td>
+                                        <td>♮</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div id="mobile2" class="tab-content">
+                            <table class="interaction-table">
+                                <caption>Mobile User Interaction Guide</caption>
+                                <thead>
+                                    <tr>
+                                        <th>Interaction</th>
+                                        <th>Effect</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Tap</td>
+                                        <td>Music On / Off</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Swipe Left</td>
+                                        <td>♯</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Swipe Right</td>
+                                        <td>♭</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Swipe Down / Up</td>
+                                        <td>♮</td>
+                                    </tr>
+                                </tbody>
+                                
+                            </table>
+                        </div>
+                        
+                        <div class="btn">Enter</div>
+                    </div>
+                </a>
+            </div>
+        </main>
+        
+        <footer>
+            <p>© 2025 · Sensual Desire Notebook</p>
+        </footer>
+    </div>
+    
+    <script>
+        // Tab functionality
+        document.addEventListener('DOMContentLoaded', () => {
+            // Handle tabs
+            const tabs = document.querySelectorAll('.tab');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', (e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    // Get parent container
+                    const parent = tab.parentElement.parentElement;
+                    
+                    // Remove active class from all tabs in this container
+                    parent.querySelectorAll('.tab').forEach(t => {
+                        t.classList.remove('active');
+                    });
+                    
+                    // Add active class to clicked tab
+                    tab.classList.add('active');
+                    
+                    // Hide all tab content
+                    parent.querySelectorAll('.tab-content').forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    
+                    // Show selected tab content
+                    const tabId = tab.getAttribute('data-tab');
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
+            
+            // Subtle parallax effect on hover
+            const cards = document.querySelectorAll('.project-card');
+            
+            cards.forEach(card => {
+                card.addEventListener('mousemove', (e) => {
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    
+                    const xRotation = ((y - rect.height / 2) / rect.height) * 2;
+                    const yRotation = ((x - rect.width / 2) / rect.width) * -2;
+                    
+                    card.style.transform = `perspective(1000px) rotateX(${xRotation}deg) rotateY(${yRotation}deg) translateY(-5px)`;
+                });
+                
+                card.addEventListener('mouseout', () => {
+                    card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) translateY(0)';
+                });
+            });
+        });
+    </script>
+</body>
+</html>
