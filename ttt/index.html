@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disappearing Tic-Tac-Toe</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+            height: 100vh;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .game-info {
+            margin-bottom: 20px;
+            font-size: 18px;
+            text-align: center;
+        }
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-template-rows: repeat(3, 100px);
+            gap: 5px;
+            margin-bottom: 20px;
+        }
+        .cell {
+            width: 100px;
+            height: 100px;
+            background-color: white;
+            border: 2px solid #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 60px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .cell:hover {
+            background-color: #f0f0f0;
+        }
+        .x {
+            color: #e74c3c;
+        }
+        .o {
+            color: #3498db;
+        }
+        .controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #27ae60;
+        }
+
+        .fade-out {
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+        .fade-in {
+            opacity: 1;
+            transition: opacity 0.5s;
+        }
+        .thinking {
+            margin-top: 10px;
+            font-style: italic;
+            color: #666;
+        }
+        .game-result {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 10px 0;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <h1>Disappearing Tic-Tac-Toe</h1>
+    <div class="game-info">
+        <p>Each player can have at most 3 pieces on the board.<br>When you place your 4th piece, your first piece disappears.</p>
+        <p id="turn-info">First player is randomly chosen...</p>
+    </div>
+    <div class="board" id="board">
+        <div class="cell" data-index="0"></div>
+        <div class="cell" data-index="1"></div>
+        <div class="cell" data-index="2"></div>
+        <div class="cell" data-index="3"></div>
+        <div class="cell" data-index="4"></div>
+        <div class="cell" data-index="5"></div>
+        <div class="cell" data-index="6"></div>
+        <div class="cell" data-index="7"></div>
+        <div class="cell" data-index="8"></div>
+    </div>
+    <div id="game-result" class="game-result"></div>
+    <div id="thinking" class="thinking"></div>
+    <div class="controls">
+        <button id="restart-btn">Restart Game</button>
+    </div>
+
+    <script>
+        // Game state
+        const state = {
+            board: Array(9).fill(''),
+            currentPlayer: '',
+            gameOver: false,
+            xMoves: [], // Track X's moves in order
+            oMoves: [], // Track O's moves in order
+            isComputerTurn: false
+        };
+
+        // DOM elements
+        const cells = document.querySelectorAll('.cell');
+        const turnInfo = document.getElementById('turn-info');
+        const restartBtn = document.getElementById('restart-btn');
+        const gameResult = document.getElementById('game-result');
+        const thinking = document.getElementById('thinking');
+
+        // Constants
+        const MAX_PIECES = 3; // Maximum pieces per player
+        const WINNING_COMBINATIONS = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
+            [0, 3, 6], [1, 4, 7], [2, 5, 8], // Columns
+            [0, 4, 8], [2, 4, 6]             // Diagonals
+        ];
+
+        // Initialize game
+        function initGame() {
+            state.board = Array(9).fill('');
+            state.gameOver = false;
+            state.xMoves = [];
+            state.oMoves = [];
+            gameResult.textContent = '';
+            
+            // Randomly determine first player
+            state.currentPlayer = Math.random() < 0.5 ? 'X' : 'O';
+            
+            // Update the UI
+            updateTurnInfo();
+            
+            // Clear the board cells
+            cells.forEach(cell => {
+                cell.textContent = '';
+                cell.style.backgroundColor = 'white'; // Reset background color
+                cell.classList.remove('x', 'o', 'fade-out', 'fade-in');
+            });
+            
+            // If computer goes first, make its move
+            if (state.currentPlayer === 'O') {
+                state.isComputerTurn = true;
+                thinking.textContent = "Computer is thinking...";
+                setTimeout(computerMove, 1000);
+            } else {
+                state.isComputerTurn = false;
+                thinking.textContent = "";
+            }
+        }
+
+        // Update the turn information display
+        function updateTurnInfo() {
+            turnInfo.textContent = state.gameOver ? 
+                "Game Over" : 
+                `Current player: ${state.currentPlayer}${state.currentPlayer === 'O' ? ' (Computer)' : ' (You)'}`;
+        }
+
+        // Make a move
+        function makeMove(index) {
+            // Ignore if game is over, cell is already occupied, or it's computer's turn
+            if (state.gameOver || state.board[index] !== '' || state.isComputerTurn) {
+                return;
+            }
+
+            // Make the move
+            applyMove(index);
+
+            // Store the current player before switching (for win highlighting)
+            const playerJustMoved = state.currentPlayer;
+
+            // Check for win or draw
+            if (checkWinner()) {
+                endGame(`${playerJustMoved} wins!`);
+                return;
+            }
+
+            if (isBoardFull()) {
+                endGame("It's a draw!");
+                return;
+            }
+
+            // Switch player
+            state.currentPlayer = state.currentPlayer === 'X' ? 'O' : 'X';
+            updateTurnInfo();
+
+            // If it's computer's turn, make a move
+            if (state.currentPlayer === 'O') {
+                state.isComputerTurn = true;
+                thinking.textContent = "Computer is thinking...";
+                setTimeout(computerMove, 1000);
+            }
+        }
+
+        // Apply move to board and handle disappearing pieces
+        function applyMove(index) {
+            state.board[index] = state.currentPlayer;
+            
+            // Update the UI
+            const cell = cells[index];
+            cell.textContent = state.currentPlayer;
+            cell.classList.add(state.currentPlayer.toLowerCase());
+            cell.classList.add('fade-in');
+            
+            // Track the move
+            if (state.currentPlayer === 'X') {
+                state.xMoves.push(index);
+                
+                // Handle disappearing piece mechanic for X
+                if (state.xMoves.length > MAX_PIECES) {
+                    const oldestMoveIndex = state.xMoves.shift(); // Remove and get the oldest move
+                    state.board[oldestMoveIndex] = ''; // Remove from game state
+                    
+                    // Update UI for the removed piece
+                    const oldestCell = cells[oldestMoveIndex];
+                    oldestCell.classList.add('fade-out');
+                    setTimeout(() => {
+                        oldestCell.textContent = '';
+                        oldestCell.classList.remove('x', 'fade-out');
+                    }, 0);
+                }
+            } else {
+                state.oMoves.push(index);
+                
+                // Handle disappearing piece mechanic for O
+                if (state.oMoves.length > MAX_PIECES) {
+                    const oldestMoveIndex = state.oMoves.shift(); // Remove and get the oldest move
+                    state.board[oldestMoveIndex] = ''; // Remove from game state
+                    
+                    // Update UI for the removed piece
+                    const oldestCell = cells[oldestMoveIndex];
+                    oldestCell.classList.add('fade-out');
+                    setTimeout(() => {
+                        oldestCell.textContent = '';
+                        oldestCell.classList.remove('o', 'fade-out');
+                    }, 0);
+                }
+            }
+        }
+
+        // Computer AI move
+        function computerMove() {
+            if (state.gameOver) return;
+            
+            // Find the best move using minimax with alpha-beta pruning
+            const bestMove = findBestMove();
+            
+            // Make the move
+            applyMove(bestMove);
+            
+            // Store the current player before switching (for win highlighting)
+            const playerJustMoved = state.currentPlayer;
+            
+            // Check for win or draw
+            if (checkWinner()) {
+                endGame(`${playerJustMoved} wins!`);
+                return;
+            }
+
+            if (isBoardFull()) {
+                endGame("It's a draw!");
+                return;
+            }
+
+            // Switch player
+            state.currentPlayer = 'X';
+            state.isComputerTurn = false;
+            thinking.textContent = "";
+            updateTurnInfo();
+        }
+
+        // Evaluate the board state for minimax
+        function evaluateBoard() {
+            // Check for a winner
+            for (let combo of WINNING_COMBINATIONS) {
+                const [a, b, c] = combo;
+                if (state.board[a] && state.board[a] === state.board[b] && state.board[a] === state.board[c]) {
+                    return state.board[a] === 'O' ? 10 : -10;
+                }
+            }
+            return 0; // Draw or game in progress
+        }
+
+        // Minimax algorithm with alpha-beta pruning and depth limitation
+        function minimax(depth, isMaximizing, alpha, beta) {
+            const score = evaluateBoard();
+            
+            // Terminal states
+            if (score === 10) return score - depth; // Computer wins
+            if (score === -10) return score + depth; // Human wins
+            if (isBoardFull()) return 0; // Draw
+            
+            // Limit recursion depth to prevent stack overflow
+            if (depth >= 5) {
+                return score; // Return current score evaluation at max depth
+            }
+            
+            if (isMaximizing) {
+                let bestScore = -Infinity;
+                for (let i = 0; i < 9; i++) {
+                    if (state.board[i] === '') {
+                        // Place O's piece
+                        state.board[i] = 'O';
+                        state.oMoves.push(i);
+                        
+                        // Handle disappearing piece
+                        let removedIndex = -1;
+                        if (state.oMoves.length > MAX_PIECES) {
+                            removedIndex = state.oMoves.shift();
+                            const oldValue = state.board[removedIndex];
+                            state.board[removedIndex] = '';
+                        }
+                        
+                        // Recursive call
+                        const score = minimax(depth + 1, false, alpha, beta);
+                        
+                        // Undo move
+                        state.board[i] = '';
+                        state.oMoves.pop();
+                        if (removedIndex !== -1) {
+                            state.board[removedIndex] = 'O';
+                            state.oMoves.unshift(removedIndex);
+                        }
+                        
+                        bestScore = Math.max(score, bestScore);
+                        alpha = Math.max(alpha, bestScore);
+                        if (beta <= alpha) break; // Alpha-beta pruning
+                    }
+                }
+                return bestScore;
+            } else {
+                let bestScore = Infinity;
+                for (let i = 0; i < 9; i++) {
+                    if (state.board[i] === '') {
+                        // Place X's piece
+                        state.board[i] = 'X';
+                        state.xMoves.push(i);
+                        
+                        // Handle disappearing piece
+                        let removedIndex = -1;
+                        if (state.xMoves.length > MAX_PIECES) {
+                            removedIndex = state.xMoves.shift();
+                            const oldValue = state.board[removedIndex];
+                            state.board[removedIndex] = '';
+                        }
+                        
+                        // Recursive call
+                        const score = minimax(depth + 1, true, alpha, beta);
+                        
+                        // Undo move
+                        state.board[i] = '';
+                        state.xMoves.pop();
+                        if (removedIndex !== -1) {
+                            state.board[removedIndex] = 'X';
+                            state.xMoves.unshift(removedIndex);
+                        }
+                        
+                        bestScore = Math.min(score, bestScore);
+                        beta = Math.min(beta, bestScore);
+                        if (beta <= alpha) break; // Alpha-beta pruning
+                    }
+                }
+                return bestScore;
+            }
+        }
+
+        // Find the best move for the computer
+        function findBestMove() {
+            let bestScore = -Infinity;
+            let bestMove = -1;
+            
+            // Try strategic opening moves first for faster performance
+            const centerIndex = 4;
+            const corners = [0, 2, 6, 8];
+            
+            // If center is available and it's the first or second move, take it
+            if (state.board[centerIndex] === '' && state.oMoves.length < 1) {
+                return centerIndex;
+            }
+            
+            // If a corner is available and it's the first move, take it randomly
+            if (state.oMoves.length < 1) {
+                const availableCorners = corners.filter(index => state.board[index] === '');
+                if (availableCorners.length > 0) {
+                    return availableCorners[Math.floor(Math.random() * availableCorners.length)];
+                }
+            }
+            
+            // Immediate win or block checks for improved performance
+            // Check if computer can win in the next move
+            for (let i = 0; i < 9; i++) {
+                if (state.board[i] === '') {
+                    state.board[i] = 'O';
+                    if (checkWinningMove('O')) {
+                        state.board[i] = ''; // Undo move
+                        return i; // This is a winning move
+                    }
+                    state.board[i] = '';
+                }
+            }
+            
+            // Check if player can win in their next move and block
+            for (let i = 0; i < 9; i++) {
+                if (state.board[i] === '') {
+                    state.board[i] = 'X';
+                    if (checkWinningMove('X')) {
+                        state.board[i] = ''; // Undo move
+                        return i; // Block player's winning move
+                    }
+                    state.board[i] = '';
+                }
+            }
+            
+            // For first few moves or simple scenarios, use a simpler approach to avoid deep recursion
+            if (state.xMoves.length + state.oMoves.length < 4) {
+                const availableMoves = [];
+                for (let i = 0; i < 9; i++) {
+                    if (state.board[i] === '') {
+                        availableMoves.push(i);
+                    }
+                }
+                if (availableMoves.length > 0) {
+                    return availableMoves[Math.floor(Math.random() * availableMoves.length)];
+                }
+            }
+            
+            // Use minimax for more complex situations
+            for (let i = 0; i < 9; i++) {
+                if (state.board[i] === '') {
+                    // Make temporary copies of state to avoid reference issues
+                    const originalBoard = [...state.board];
+                    const originalOMoves = [...state.oMoves];
+                    
+                    // Try this move
+                    state.board[i] = 'O';
+                    state.oMoves.push(i);
+                    
+                    // Handle disappearing piece
+                    let removedIndex = -1;
+                    if (state.oMoves.length > MAX_PIECES) {
+                        removedIndex = state.oMoves.shift();
+                        state.board[removedIndex] = '';
+                    }
+                    
+                    // Evaluate this move with limited depth
+                    const score = minimax(0, false, -Infinity, Infinity);
+                    
+                    // Restore the original state
+                    state.board = [...originalBoard];
+                    state.oMoves = [...originalOMoves];
+                    
+                    // Update best score and move
+                    if (score > bestScore) {
+                        bestScore = score;
+                        bestMove = i;
+                    }
+                }
+            }
+            
+            // If no good move is found, pick a random available cell
+            if (bestMove === -1) {
+                const availableMoves = [];
+                for (let i = 0; i < 9; i++) {
+                    if (state.board[i] === '') {
+                        availableMoves.push(i);
+                    }
+                }
+                if (availableMoves.length > 0) {
+                    bestMove = availableMoves[Math.floor(Math.random() * availableMoves.length)];
+                }
+            }
+            
+            return bestMove;
+        }
+        
+        // Helper function to check if a player has a winning move
+        function checkWinningMove(player) {
+            for (let combo of WINNING_COMBINATIONS) {
+                const [a, b, c] = combo;
+                if (state.board[a] === player && state.board[b] === player && state.board[c] === player) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // Check if there's a winner
+        function checkWinner() {
+            for (let combo of WINNING_COMBINATIONS) {
+                const [a, b, c] = combo;
+                if (state.board[a] && state.board[a] === state.board[b] && state.board[a] === state.board[c]) {
+                    // Highlight the winning combination with player-specific color
+                    const winningPlayer = state.board[a];
+                    const highlightColor = winningPlayer === 'X' ? '#ffcdd2' : '#c8e6c9'; // Red for X, Green for O
+                    
+                    cells[a].style.backgroundColor = highlightColor;
+                    cells[b].style.backgroundColor = highlightColor;
+                    cells[c].style.backgroundColor = highlightColor;
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // Check if the board is full
+        function isBoardFull() {
+            return state.board.every(cell => cell !== '');
+        }
+
+        // End the game
+        function endGame(message) {
+            state.gameOver = true;
+            gameResult.textContent = message;
+            thinking.textContent = "";
+            updateTurnInfo();
+            
+            // Ensure winning combination highlighting is visible
+            if (message.includes("wins")) {
+                setTimeout(() => {
+                    checkWinner(); // Re-run to make sure highlighting is applied
+                }, 50);
+            }
+        }
+
+        // Event listeners
+        cells.forEach(cell => {
+            cell.addEventListener('click', () => {
+                const index = parseInt(cell.dataset.index);
+                makeMove(index);
+            });
+        });
+
+        restartBtn.addEventListener('click', initGame);
+
+        // Start the game
+        initGame();
+    </script>
+</body>
+</html>
