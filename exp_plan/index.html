@@ -754,10 +754,10 @@
                 
                 // Update key markers to stay upright
                 // updateKeyMarkerRotations();
-                keyMarkers.forEach(({ wrapper, marker }, i) => {
-                    // Apply counter-rotation to keep markers upright
-                    marker.style.transform = `rotate(${-(rotation + deltaAngle) - (i * 30)}deg)`;
-                });
+                // keyMarkers.forEach(({ wrapper, marker }, i) => {
+                //     // Apply counter-rotation to keep markers upright
+                //     marker.style.transform = `rotate(${-(rotation) - (i * 30)}deg)`;
+                // });
             }
             
             currentSong = (currentSongPerTone[currentTone] + songDelta + songsPerTone[currentTone]) % songsPerTone[currentTone];
@@ -911,19 +911,19 @@
         }
         
         // Keyboard controls
-        // document.addEventListener("keyup", function(e) {
-        //     if (e.key === "Enter" || e.key === " ") {
-        //         togglePlayPause();
-        //     } else if (e.key === "ArrowUp" || e.key === "w") {
-        //         switchAudio(0, -1);
-        //     } else if (e.key === "ArrowDown" || e.key === "s") {
-        //         switchAudio(0, 1);
-        //     } else if (e.key === "ArrowRight" || e.key === "d") {
-        //         switchAudio(1, 0);
-        //     } else if (e.key === "ArrowLeft" || e.key === "a") {
-        //         switchAudio(-1, 0);
-        //     }
-        // });
+        document.addEventListener("keyup", function(e) {
+            if (e.key === "Enter" || e.key === " ") {
+                togglePlayPause();
+            } else if (e.key === "ArrowUp" || e.key === "w") {
+                switchAudio(0, -1);
+            } else if (e.key === "ArrowDown" || e.key === "s") {
+                switchAudio(0, 1);
+            } else if (e.key === "ArrowRight" || e.key === "d") {
+                switchAudio(1, 0);
+            } else if (e.key === "ArrowLeft" || e.key === "a") {
+                switchAudio(-1, 0);
+            }
+        });
         
         // Update progress bar
         audio.addEventListener("timeupdate", function() {
