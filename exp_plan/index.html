@@ -57,9 +57,19 @@
         .key-marker {
             position: absolute;
             transform-origin: center;
-            font-size: min(4vmin, 24px);
+            transform-box: fill-box;
+            font-size: min(5vmin, 28px);
             font-weight: normal;
             color: #333;
+            /* Added transform-box property for better positioning */
+            /* transform-box: fill-box; */
+            /* Keep the marker upright regardless of wheel rotation */
+            width: 8vmin;
+            height: 8vmin;
+            transition: transform 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         .pointer {
@@ -107,7 +117,7 @@
         }
 
         .current-key {
-            font-size: min(8vmin, 48px);
+            font-size: min(9vmin, 52px);
             font-weight: normal;
             transition: transform 0.2s ease;
         }
@@ -287,6 +297,14 @@
             transform-origin: bottom;
             transition: height 0.05s ease-out;
         }
+        
+        /* Added key wrapper to keep markers upright */
+        .key-wrapper {
+            position: absolute;
+            width: 10vmin;
+            height: 10vmin;
+            transform-origin: center;
+        }
     </style>
 </head>
 <body>
@@ -424,21 +442,32 @@
         audio.src = `static/audios/${currentTone}/${currentSong}.mp3`;
         updateSongIndicator();
         
-        // Create key markers on the wheel
+        // Array to store key marker elements
+        const keyMarkers = [];
+        
+        // Create key markers on the wheel with wrappers for counter-rotation
         for (let i = 0; i < TONES; i++) {
             const angle = (i * 30) * (Math.PI / 180);
             // Larger radius to place markers near the edge
-            const x = 50 + Math.sin(angle) * 45;
-            const y = 50 - Math.cos(angle) * 45;
+            const x = 50 + Math.sin(angle + (Math.PI / 120)) * 42;
+            const y = 50 - Math.cos(angle + (Math.PI / 120)) * 42;
             
+            // Create wrapper div for positioning
+            const wrapper = document.createElement("div");
+            wrapper.className = "key-wrapper";
+            wrapper.style.left = `${x}%`;
+            wrapper.style.top = `${y}%`;
+            wrapper.style.transform = `translate(-50%, -50%) rotate(${i * 30}deg)`;
+            
+            // Create the marker inside the wrapper
             const marker = document.createElement("div");
             marker.className = "key-marker";
             marker.innerHTML = keySigs[i];
-            marker.style.left = `${x}%`;
-            marker.style.top = `${y}%`;
-            marker.style.transform = `translate(-50%, -50%)`;
+            marker.dataset.index = i;
             
-            wheel.appendChild(marker);
+            wrapper.appendChild(marker);
+            wheel.appendChild(wrapper);
+            keyMarkers.push({ wrapper, marker });
         }
         
         // Create frequency visualizer bars
@@ -454,7 +483,19 @@
         currentKeyDisplay.innerHTML = keySigs[currentTone];
         // Set initial wheel rotation to match C (initial position)
         wheel.style.transform = `rotate(${rotation}deg)`;
-        wheel.style.setProperty('--rotation', `${rotation}deg`);
+        
+        // Update key markers to stay upright
+        // function updateKeyMarkerRotations() {
+        //     keyMarkers.forEach(({ wrapper, marker }, i) => {
+        //         // Apply counter-rotation to keep markers upright
+        //         // marker.style.transform = `rotate(${-rotation - (i * 30)}deg)`;
+        //         marker.style.transition = "transform 0.3s cubic-bezier(0.25, 0.1, 0.25, 1)";
+        //         marker.style.transform = `rotate(${-rotation - (i * 30)}deg)`;
+        //     });
+        // }
+        
+        // // Call initially to set correct orientation
+        // updateKeyMarkerRotations();
         
         // Initialize audio context and analyser
         function initAudioContext() {
@@ -484,7 +525,6 @@
                 this.speed = speed;
                 this.angle = angle;
                 this.alpha = 1;
-                // this.decay = 0.01 + Math.random() * 0.02;
                 this.decay = 0.005 + Math.random() * 0.01; // Slower decay
             }
             
@@ -494,10 +534,6 @@
                 this.alpha -= this.decay;
                 this.size = this.baseSize * (1 + intensity * 0.5);
                 
-                // Boundary check
-                // if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) {
-                //     this.alpha = 0;
-                // }
                 const distanceFromOrigin = Math.sqrt(
                     Math.pow(this.x - this.originalX, 2) +
                     Math.pow(this.y - this.originalY, 2)
@@ -527,7 +563,7 @@
             const wheelRect = wheel.getBoundingClientRect();
             const centerX = wheelRect.left + wheelRect.width / 2;
             const centerY = wheelRect.top + wheelRect.height / 2;
-               // Get the current color with opacity based on intensity
+            // Get the current color with opacity based on intensity
             const getParticleColor = (intensity) => {
                 const baseColor = keyColors[currentTone] || '#333';
                 const r = parseInt(baseColor.slice(1, 3), 16);
@@ -538,16 +574,12 @@
             
             // Only create particles if intensity is above threshold
             if (intensity > 0.5) {
-                // const count = Math.floor(intensity * 5);
-                const count = Math.floor(intensity * 2)
+                const count = Math.floor(intensity * 2);
                 
                 for (let i = 0; i < count; i++) {
-                    // const angle = Math.random() * Math.PI * 2;
-                    // const speed = 0.5 + Math.random() * 2 * intensity;
                     const angle = (Math.PI * 2 * i / count) + (Math.random() * 0.5 - 0.25);
                     const speed = 0.3 + Math.random() * intensity; // Slower speed
                     const size = 2 + Math.random() * 3 * intensity;
-                    // const color = keyColors[currentTone] || '#333';
                     const color = getParticleColor(intensity);
                     
                     particles.push(new Particle(
@@ -561,7 +593,6 @@
                     
                     // Limit max particles for performance
                     if (particles.length > 200) {
-                        // particles.shift();
                         particles.sort((a, b) => a.alpha - b.alpha);
                         particles.splice(0, 1);
                     }
@@ -626,9 +657,8 @@
             const averageIntensity = totalIntensity / barCount;
             
             // Create particles based on intensity
-            // createParticles(averageIntensity);
-            if (Math.random() > 0.5) { // Only create particles 30% of the time
-                createParticles(averageIntensity); // Reduce intensity by half
+            if (Math.random() > 0.5) { // Only create particles 50% of the time
+                createParticles(averageIntensity);
             }
             animateParticles(averageIntensity);
             
@@ -668,7 +698,6 @@
                 cancelAnimationFrame(animationId);
                 
                 // Remove pulse effects
-                // wheel.classList.remove('wheel-pulse');
                 centerDisplay.classList.remove('center-pulse');
                 currentKeyDisplay.classList.remove('key-pulse');
                 
@@ -690,7 +719,6 @@
                 updateFrequencyBars();
                 
                 // Add pulse effects
-                // wheel.classList.add('wheel-pulse');
                 centerDisplay.classList.add('center-pulse');
                 currentKeyDisplay.classList.add('key-pulse');
             }
@@ -723,7 +751,13 @@
                 currentTone = newTone;
                 
                 wheel.style.transform = `rotate(${rotation}deg)`;
-                wheel.style.setProperty('--rotation', `${rotation}deg`);
+                
+                // Update key markers to stay upright
+                // updateKeyMarkerRotations();
+                keyMarkers.forEach(({ wrapper, marker }, i) => {
+                    // Apply counter-rotation to keep markers upright
+                    marker.style.transform = `rotate(${-(rotation + deltaAngle) - (i * 30)}deg)`;
+                });
             }
             
             currentSong = (currentSongPerTone[currentTone] + songDelta + songsPerTone[currentTone]) % songsPerTone[currentTone];
@@ -764,6 +798,10 @@
         
         function startDrag(e) {
             isDragging = true;
+            // keyMarkers.forEach()
+            keyMarkers.forEach(({ wrapper, marker }) => {
+                marker.style.transition = "none";
+            });
             const rect = wheel.getBoundingClientRect();
             const wheelCenterX = rect.left + rect.width / 2;
             const wheelCenterY = rect.top + rect.height / 2;
@@ -782,7 +820,9 @@
             const deltaAngle = angle - startAngle;
             
             wheel.style.transform = `rotate(${rotation + deltaAngle}deg)`;
-            wheel.style.setProperty('--rotation', `${rotation + deltaAngle}deg`);
+            
+            // Update the key markers to stay upright during drag
+            // updateKeyMarkerRotations(rotation + deltaAngle);
             
             // Calculate the current tone based on wheel position
             // Get the actual rotation amount (considering our starting rotation)
@@ -796,6 +836,7 @@
                 currentTone = normalizedTone;
                 currentSong = currentSongPerTone[currentTone];
                 currentKeyDisplay.innerHTML = keySigs[currentTone];
+                changeIndent();
                 audio.src = `static/audios/${currentTone}/${currentSong}.mp3`;
                 updateSongIndicator();
                 
@@ -829,7 +870,9 @@
             rotation = snapAngle;
             
             wheel.style.transform = `rotate(${rotation}deg)`;
-            wheel.style.setProperty('--rotation', `${rotation}deg`);
+            
+            // Update key markers to stay upright after snap
+            // updateKeyMarkerRotations();
             
             // Make sure the tone is correct
             const snapTone = Math.round(-rotation / 30) % TONES;
@@ -868,19 +911,19 @@
         }
         
         // Keyboard controls
-        document.addEventListener("keyup", function(e) {
-            if (e.key === "Enter" || e.key === " ") {
-                togglePlayPause();
-            } else if (e.key === "ArrowUp" || e.key === "w") {
-                switchAudio(0, -1);
-            } else if (e.key === "ArrowDown" || e.key === "s") {
-                switchAudio(0, 1);
-            } else if (e.key === "ArrowRight" || e.key === "d") {
-                switchAudio(1, 0);
-            } else if (e.key === "ArrowLeft" || e.key === "a") {
-                switchAudio(-1, 0);
-            }
-        });
+        // document.addEventListener("keyup", function(e) {
+        //     if (e.key === "Enter" || e.key === " ") {
+        //         togglePlayPause();
+        //     } else if (e.key === "ArrowUp" || e.key === "w") {
+        //         switchAudio(0, -1);
+        //     } else if (e.key === "ArrowDown" || e.key === "s") {
+        //         switchAudio(0, 1);
+        //     } else if (e.key === "ArrowRight" || e.key === "d") {
+        //         switchAudio(1, 0);
+        //     } else if (e.key === "ArrowLeft" || e.key === "a") {
+        //         switchAudio(-1, 0);
+        //     }
+        // });
         
         // Update progress bar
         audio.addEventListener("timeupdate", function() {
@@ -984,7 +1027,6 @@
             updateProgressBar(percent);
             seekAudio(percent);
             
-            
             isProgressDragging = false;
         }
         
@@ -995,7 +1037,7 @@
                 playPauseBtn.style.textIndent = "0.1vmin";
             }
         
-            span = currentKeyDisplay.querySelector('span');
+            const span = currentKeyDisplay.querySelector('span');
             if (span && span.innerHTML == "♭") {
                 currentKeyDisplay.style.marginLeft = "1.3vmin";
             } else {
@@ -1009,6 +1051,9 @@
                 cancelAnimationFrame(animationId);
                 updateFrequencyBars();
             }
+            
+            // Update key marker rotations on resize
+            // updateKeyMarkerRotations();
         });
         
         // Initialize
