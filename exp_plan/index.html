@@ -19,6 +19,7 @@
             align-items: center;
             height: 100vh;
             user-select: none;
+            overflow: hidden;
         }
 
         .player-container {
@@ -36,7 +37,6 @@
             width: 65vmin;
             height: 65vmin;
             margin-top: -25vh;
-            /* margin-bottom: 0vmin; */
         }
 
         .wheel {
@@ -53,7 +53,7 @@
         .wheel:active {
             cursor: grabbing;
         }
-
+        
         .key-marker {
             position: absolute;
             transform-origin: center;
@@ -91,23 +91,45 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            transition: box-shadow 0.3s ease;
+        }
+        
+        /* Center display pulsing effect */
+        .center-pulse {
+            animation: centerPulse 1.2s ease-in-out infinite;
+            box-shadow: 0 0 15px rgba(51, 51, 51, 0.3);
+        }
+        
+        @keyframes centerPulse {
+            0% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.05); box-shadow: 0 0 25px rgba(51, 51, 51, 0.5); }
+            100% { transform: translate(-50%, -50%) scale(1); }
         }
 
         .current-key {
             font-size: min(8vmin, 48px);
             font-weight: normal;
+            transition: transform 0.2s ease;
+        }
+        
+        /* Key signature pulsing effect */
+        .key-pulse {
+            animation: keyPulse 1s ease-in-out infinite;
+        }
+        
+        @keyframes keyPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
         }
 
         .controls-wrapper {
             position: absolute;
-         
             width: 100%;
             display: flex;
             flex-direction: column;
             align-items: center;
             z-index: 4;
-            /* margin-bottom: 0vmin; */
-            /* bottom: 5vh; */
             margin-top: 75vmin;
         }
 
@@ -146,7 +168,6 @@
             max-width: 80px;
             max-height: 80px;
             font-size: min(5.5vmin, 38px);
-            /* transition: margin 0.2s ease; */
         }
 
         .btn:active {
@@ -204,7 +225,6 @@
         .sharp, .flat {
             font-family: 'Times New Roman', Times, serif;
             position: relative;
-            /* font-size: min(5vmin, 30px); */
         }
 
         .key-marker .flat {
@@ -227,14 +247,59 @@
             margin-top: -1.1vmin;
             font-size: 1.5em;
         }
+        
+        /* Particle canvas */
+        #particles-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        /* Audio visualizer */
+        .visualizer-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 30vmin;
+            height: 30vmin;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        #frequency-bars {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .frequency-bar {
+            position: absolute;
+            bottom: 50%;
+            left: 50%;
+            width: 0.5vmin;
+            height: 0;
+            background-color: rgba(51, 51, 51, 0.2);
+            transform-origin: bottom;
+            transition: height 0.05s ease-out;
+        }
     </style>
 </head>
 <body>
+    <canvas id="particles-canvas"></canvas>
+    
     <div class="player-container">
         <div class="wheel-container">
             <div class="pointer"></div>
             <div id="wheel" class="wheel"></div>
-            <div class="center-display">
+            <div class="visualizer-container">
+                <div id="frequency-bars"></div>
+            </div>
+            <div id="center-display" class="center-display">
                 <div id="current-key" class="current-key">C</div>
             </div>
         </div>
@@ -293,17 +358,46 @@
             11: "B",
         };
         
-        let currentTone = 0; // G
+        // Color associations for each key
+        const keyColors = {
+            0: "#FF5252",  // C - Red
+            1: "#FF4081",  // C♯ - Pink
+            2: "#E040FB",  // D - Purple
+            3: "#7C4DFF",  // E♭ - Deep Purple
+            4: "#536DFE",  // E - Indigo
+            5: "#448AFF",  // F - Blue
+            6: "#40C4FF",  // F♯ - Light Blue
+            7: "#18FFFF",  // G - Cyan
+            8: "#64FFDA",  // A♭ - Teal
+            9: "#69F0AE",  // A - Green
+            10: "#B2FF59", // B♭ - Light Green
+            11: "#FFFF00"  // B - Yellow
+        };
+        
+        let currentTone = 0; // Start with C
         let currentSong = currentSongPerTone[currentTone];
         let playing = false;
-        let rotation = -currentTone * 30; // Initial rotation based on G
+        let rotation = -currentTone * 30; // Initial rotation based on C
         let startAngle = 0;
         let currentAngle = 0;
         let isDragging = false;
         let isProgressDragging = false;
         
+        // Audio context for visualization
+        let audioContext;
+        let analyser;
+        let source;
+        let dataArray;
+        let animationId;
+        
+        // Particles system variables
+        let canvas, ctx;
+        let particles = [];
+        let particleCount = 100;
+        
         const audio = document.getElementById("myaudio");
         const wheel = document.getElementById("wheel");
+        const centerDisplay = document.getElementById("center-display");
         const currentKeyDisplay = document.getElementById("current-key");
         const playPauseBtn = document.getElementById("playpause");
         const nextSongBtn = document.getElementById("next-song");
@@ -312,6 +406,19 @@
         const progressHandle = document.getElementById("progress-handle");
         const progressContainer = document.getElementById("progress-container");
         const songIndicator = document.getElementById("song-indicator");
+        const frequencyBarsContainer = document.getElementById("frequency-bars");
+        
+        // Initialize canvas for particles
+        canvas = document.getElementById("particles-canvas");
+        ctx = canvas.getContext("2d");
+        
+        // Resize canvas to match window size
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
         
         // Initialize audio
         audio.src = `static/audios/${currentTone}/${currentSong}.mp3`;
@@ -334,22 +441,268 @@
             wheel.appendChild(marker);
         }
         
+        // Create frequency visualizer bars
+        for (let i = -45; i < 135; i++) {
+            const angle = (i * 2) * (Math.PI / 180);
+            const bar = document.createElement("div");
+            bar.className = "frequency-bar";
+            bar.style.transform = `rotate(${i * 2}deg) translateX(-50%)`;
+            frequencyBarsContainer.appendChild(bar);
+        }
+        
         // Set initial display
         currentKeyDisplay.innerHTML = keySigs[currentTone];
-        // Set initial wheel rotation to match G (7th position)
+        // Set initial wheel rotation to match C (initial position)
         wheel.style.transform = `rotate(${rotation}deg)`;
+        wheel.style.setProperty('--rotation', `${rotation}deg`);
+        
+        // Initialize audio context and analyser
+        function initAudioContext() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                analyser = audioContext.createAnalyser();
+                analyser.fftSize = 256;
+                source = audioContext.createMediaElementSource(audio);
+                source.connect(analyser);
+                analyser.connect(audioContext.destination);
+                
+                // Create data array for frequency analysis
+                dataArray = new Uint8Array(analyser.frequencyBinCount);
+            }
+        }
+        
+        // Particle class
+        class Particle {
+            constructor(x, y, color, size, speed, angle) {
+                this.x = x;
+                this.y = y;
+                this.originalX = x;
+                this.originalY = y;
+                this.color = color;
+                this.size = size;
+                this.baseSize = size;
+                this.speed = speed;
+                this.angle = angle;
+                this.alpha = 1;
+                // this.decay = 0.01 + Math.random() * 0.02;
+                this.decay = 0.005 + Math.random() * 0.01; // Slower decay
+            }
+            
+            update(intensity) {
+                this.x += Math.cos(this.angle) * this.speed;
+                this.y += Math.sin(this.angle) * this.speed;
+                this.alpha -= this.decay;
+                this.size = this.baseSize * (1 + intensity * 0.5);
+                
+                // Boundary check
+                // if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) {
+                //     this.alpha = 0;
+                // }
+                const distanceFromOrigin = Math.sqrt(
+                    Math.pow(this.x - this.originalX, 2) +
+                    Math.pow(this.y - this.originalY, 2)
+                );
+        
+                // Start fading out faster if too far from origin
+                if (distanceFromOrigin > 100) {
+                    this.alpha -= 0.01;
+                }
+               
+                // Ensure alpha doesn't go below 0
+                this.alpha = Math.max(0, this.alpha);
+            }
+            
+            draw() {
+                ctx.globalAlpha = this.alpha;
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.globalAlpha = 1;
+            }
+        }
+        
+        // Create particles at center position with key color
+        function createParticles(intensity) {
+            const wheelRect = wheel.getBoundingClientRect();
+            const centerX = wheelRect.left + wheelRect.width / 2;
+            const centerY = wheelRect.top + wheelRect.height / 2;
+               // Get the current color with opacity based on intensity
+            const getParticleColor = (intensity) => {
+                const baseColor = keyColors[currentTone] || '#333';
+                const r = parseInt(baseColor.slice(1, 3), 16);
+                const g = parseInt(baseColor.slice(3, 5), 16);
+                const b = parseInt(baseColor.slice(5, 7), 16);
+                return `rgba(${r}, ${g}, ${b}, 0.7)`;
+            };
+            
+            // Only create particles if intensity is above threshold
+            if (intensity > 0.5) {
+                // const count = Math.floor(intensity * 5);
+                const count = Math.floor(intensity * 2)
+                
+                for (let i = 0; i < count; i++) {
+                    // const angle = Math.random() * Math.PI * 2;
+                    // const speed = 0.5 + Math.random() * 2 * intensity;
+                    const angle = (Math.PI * 2 * i / count) + (Math.random() * 0.5 - 0.25);
+                    const speed = 0.3 + Math.random() * intensity; // Slower speed
+                    const size = 2 + Math.random() * 3 * intensity;
+                    // const color = keyColors[currentTone] || '#333';
+                    const color = getParticleColor(intensity);
+                    
+                    particles.push(new Particle(
+                        centerX,
+                        centerY,
+                        color,
+                        size,
+                        speed,
+                        angle
+                    ));
+                    
+                    // Limit max particles for performance
+                    if (particles.length > 200) {
+                        // particles.shift();
+                        particles.sort((a, b) => a.alpha - b.alpha);
+                        particles.splice(0, 1);
+                    }
+                }
+            }
+        }
+        
+        // Animate particles
+        function animateParticles(intensity) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            for (let i = particles.length - 1; i >= 0; i--) {
+                particles[i].update(intensity);
+                particles[i].draw();
+                
+                // Remove faded particles
+                if (particles[i].alpha <= 0) {
+                    particles.splice(i, 1);
+                }
+            }
+        }
+        
+        // Update frequency visualizer
+        function updateFrequencyBars() {
+            if (!analyser) return;
+            
+            analyser.getByteFrequencyData(dataArray);
+            
+            const bars = frequencyBarsContainer.querySelectorAll('.frequency-bar');
+            const barCount = bars.length;
+            let totalIntensity = 0;
+            
+            // Map frequency data to bars
+            for (let i = 0; i < barCount; i++) {
+                // Use a subset of the frequency data for each bar
+                const index = Math.floor(i / barCount * (dataArray.length / 2));
+                const value = dataArray[index];
+                const percentage = value / 255;
+                
+                // Calculate height based on frequency value
+                let height = percentage * 20;
+                if (i < 10) {
+                    height *= 0.6;
+                } else if (i < 30) {
+                    height *= 0.7;
+                } else if (i < 50) {
+                    height *= 0.8;
+                }
+                
+            
+                bars[i].style.height = height + 'vmin';
+                
+                // Color based on current key and intensity
+                const baseColor = keyColors[currentTone] || '#333';
+                const opacity = 0.1 + percentage * 0.3;
+                bars[i].style.backgroundColor = `${baseColor}${Math.floor(opacity * 255).toString(16).padStart(2, '0')}`;
+                
+                totalIntensity += percentage;
+            }
+            
+            // Calculate average intensity for particle effects
+            const averageIntensity = totalIntensity / barCount;
+            
+            // Create particles based on intensity
+            // createParticles(averageIntensity);
+            if (Math.random() > 0.5) { // Only create particles 30% of the time
+                createParticles(averageIntensity); // Reduce intensity by half
+            }
+            animateParticles(averageIntensity);
+            
+            // Adjust pulse intensity based on music
+            adjustPulseIntensity(averageIntensity);
+            
+            animationId = requestAnimationFrame(updateFrequencyBars);
+        }
+        
+        // Adjust pulse animations based on music intensity
+        function adjustPulseIntensity(intensity) {
+            // Adjust center display pulse
+            const pulseScale = 1 + (intensity * 0.1);
+            centerDisplay.style.transform = `translate(-50%, -50%) scale(${pulseScale})`;
+            
+            // Adjust key display pulse
+            currentKeyDisplay.style.transform = `scale(${1 + (intensity * 0.15)})`;
+            
+            // Add glow effect based on intensity
+            const glowRadius = Math.floor(intensity * 25);
+            const keyColor = keyColors[currentTone] || '#333';
+            centerDisplay.style.boxShadow = `0 0 ${glowRadius}px ${keyColor}`;
+        }
         
         // Audio play/pause function
         function togglePlayPause() {
+            // Initialize audio context on first play (required for user interaction)
+            if (!audioContext) {
+                initAudioContext();
+            }
+            
             if (playing) {
                 audio.pause();
                 playPauseBtn.innerHTML = "▶";
+                
+                // Stop visualization
+                cancelAnimationFrame(animationId);
+                
+                // Remove pulse effects
+                // wheel.classList.remove('wheel-pulse');
+                centerDisplay.classList.remove('center-pulse');
+                currentKeyDisplay.classList.remove('key-pulse');
+                
+                // Reset transform and glow
+                centerDisplay.style.transform = 'translate(-50%, -50%)';
+                centerDisplay.style.boxShadow = 'none';
+                currentKeyDisplay.style.transform = 'scale(1)';
             } else {
                 let playPromise = audio.play();
                 playPromise.catch(() => {});
                 playPauseBtn.innerHTML = "❚❚";
+                
+                // Resume audio context if suspended
+                if (audioContext && audioContext.state === 'suspended') {
+                    audioContext.resume();
+                }
+                
+                // Start visualization
+                updateFrequencyBars();
+                
+                // Add pulse effects
+                // wheel.classList.add('wheel-pulse');
+                centerDisplay.classList.add('center-pulse');
+                currentKeyDisplay.classList.add('key-pulse');
             }
+            
             playing = !playing;
+            if (!playing) {
+                frequencyBarsContainer.style.display = "none";
+                canvas.style.display = "none";
+            } else {
+                frequencyBarsContainer.style.display = "flex";
+                canvas.style.display = "flex";
+            }
             changeIndent();
         }
         
@@ -370,16 +723,18 @@
                 currentTone = newTone;
                 
                 wheel.style.transform = `rotate(${rotation}deg)`;
+                wheel.style.setProperty('--rotation', `${rotation}deg`);
             }
-            
             
             currentSong = (currentSongPerTone[currentTone] + songDelta + songsPerTone[currentTone]) % songsPerTone[currentTone];
             currentSongPerTone[currentTone] = currentSong;
             updateSongIndicator();
-
             
             currentKeyDisplay.innerHTML = keySigs[currentTone];
             audio.src = `static/audios/${currentTone}/${currentSong}.mp3`;
+            
+            // Clear existing particles
+            particles = [];
             
             if (playing) {
                 let playPromise = audio.play();
@@ -404,7 +759,6 @@
         
         // Touch events
         wheel.addEventListener("touchstart", handleTouchStart);
-        // wheel.addEventListener("touchend", handleTouchEnd);
         document.addEventListener("touchmove", handleTouchMove);
         document.addEventListener("touchend", handleTouchEnd);
         
@@ -428,6 +782,7 @@
             const deltaAngle = angle - startAngle;
             
             wheel.style.transform = `rotate(${rotation + deltaAngle}deg)`;
+            wheel.style.setProperty('--rotation', `${rotation + deltaAngle}deg`);
             
             // Calculate the current tone based on wheel position
             // Get the actual rotation amount (considering our starting rotation)
@@ -443,6 +798,9 @@
                 currentKeyDisplay.innerHTML = keySigs[currentTone];
                 audio.src = `static/audios/${currentTone}/${currentSong}.mp3`;
                 updateSongIndicator();
+                
+                // Clear existing particles when changing key
+                particles = [];
                 
                 if (playing) {
                     let playPromise = audio.play();
@@ -464,7 +822,6 @@
             const totalDeltaAngle = finalAngle - startAngle;
             
             // Update rotation to the final position
-            // rotation = (rotation + totalDeltaAngle) % 360;
             rotation = rotation + totalDeltaAngle;
             
             // Snap to the nearest key
@@ -472,6 +829,7 @@
             rotation = snapAngle;
             
             wheel.style.transform = `rotate(${rotation}deg)`;
+            wheel.style.setProperty('--rotation', `${rotation}deg`);
             
             // Make sure the tone is correct
             const snapTone = Math.round(-rotation / 30) % TONES;
@@ -481,7 +839,7 @@
         }
         
         function handleTouchStart(e) {
-            e.preventDefault()
+            e.preventDefault();
             const touch = e.touches[0];
             const mouseEvent = new MouseEvent("mousedown", {
                 clientX: touch.clientX,
@@ -498,8 +856,6 @@
                 clientY: touch.clientY
             });
             drag(mouseEvent);
-            // e.preventDefault();
-        
         }
         
         function handleTouchEnd(e) {
@@ -542,7 +898,7 @@
             progressHandle.style.left = `${percent}%`;
         }
         
-        function seekAudio(percent) {
+        function seekAudio(percent) {       
             if (audio.duration) {
                 audio.currentTime = (percent / 100) * audio.duration;
             }
@@ -551,7 +907,8 @@
         // Progress bar click event
         progressContainer.addEventListener("click", function(e) {
             if (isProgressDragging) return;
-            
+            e.preventDefault();
+            e.stopPropagation();
             const rect = progressContainer.getBoundingClientRect();
             const percent = ((e.clientX - rect.left) / rect.width) * 100;
             updateProgressBar(percent);
@@ -627,8 +984,10 @@
             updateProgressBar(percent);
             seekAudio(percent);
             
+            
             isProgressDragging = false;
         }
+        
         function changeIndent() {
             if (playPauseBtn.innerHTML == "▶") {
                 playPauseBtn.style.textIndent = "1vmin";
@@ -642,13 +1001,19 @@
             } else {
                 currentKeyDisplay.style.marginLeft = "0";
             }
-            
         }
+        
+        // Reset animation when window is resized
+        window.addEventListener('resize', function() {
+            if (playing) {
+                cancelAnimationFrame(animationId);
+                updateFrequencyBars();
+            }
+        });
+        
+        // Initialize
         changeIndent();
-        // document.body.style.overflow = "hidden"; 
-        
-        
-
+        document.body.style.overflow = "hidden";
     </script>
 </body>
 </html>

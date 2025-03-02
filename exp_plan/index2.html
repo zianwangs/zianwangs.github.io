@@ -2,8 +2,13 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Music Key Wheel Player</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>12-Major Roulette</title>
     <style type="text/css">
+        * {
+            -webkit-tap-highlight-color: transparent;
+        }
+
         body {
             margin: 0;
             padding: 0;
@@ -18,8 +23,8 @@
 
         .player-container {
             position: relative;
-            width: 100vw;
-            height: 100vh;
+            width: 100%;
+            height: 100%;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -28,11 +33,10 @@
 
         .wheel-container {
             position: relative;
-            width: 70vmin;
-            height: 70vmin;
-            max-width: 500px;
-            max-height: 500px;
-            margin-bottom: 120px; /* Add space for controls */
+            width: 65vmin;
+            height: 65vmin;
+            margin-top: -25vh;
+            /* margin-bottom: 0vmin; */
         }
 
         .wheel {
@@ -53,7 +57,7 @@
         .key-marker {
             position: absolute;
             transform-origin: center;
-            font-size: 24px;
+            font-size: min(4vmin, 24px);
             font-weight: normal;
             color: #333;
         }
@@ -62,8 +66,10 @@
             position: absolute;
             top: 0;
             left: 50%;
-            width: 2px;
-            height: 20px;
+            width: 0.3vmin;
+            min-width: 2px;
+            height: 2.5vmin;
+            min-height: 5px;
             background-color: #d32f2f;
             transform: translateX(-50%);
             z-index: 3;
@@ -71,8 +77,10 @@
 
         .center-display {
             position: absolute;
-            width: 120px;
-            height: 120px;
+            width: 17vmin;
+            height: 17vmin;
+            min-width: 60px;
+            min-height: 60px;
             border-radius: 50%;
             background-color: #fff;
             border: 2px solid #333;
@@ -86,30 +94,37 @@
         }
 
         .current-key {
-            font-size: 48px;
+            font-size: min(8vmin, 48px);
             font-weight: normal;
         }
 
         .controls-wrapper {
             position: absolute;
-            bottom: 40px;
+         
             width: 100%;
             display: flex;
             flex-direction: column;
             align-items: center;
             z-index: 4;
+            /* margin-bottom: 0vmin; */
+            /* bottom: 5vh; */
+            margin-top: 75vmin;
         }
 
         .controls {
             display: flex;
             justify-content: center;
             align-items: center;
-            margin-top: 20px;
+            margin-top: 2vh;
         }
 
         .btn {
-            width: 60px;
-            height: 60px;
+            width: 9vmin;
+            height: 9vmin;
+            min-width: 40px;
+            min-height: 40px;
+            max-width: 60px;
+            max-height: 60px;
             border-radius: 50%;
             background-color: #fff;
             border: 2px solid #333;
@@ -117,15 +132,21 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            margin: 0 10px;
+            margin: 0 2vmin;
             cursor: pointer;
-            font-size: 24px;
+            font-size: min(4vmin, 24px);
+            text-align: center;
         }
 
         .playpause {
-            width: 80px;
-            height: 80px;
-            font-size: 32px;
+            width: 12vmin;
+            height: 12vmin;
+            min-width: 50px;
+            min-height: 50px;
+            max-width: 80px;
+            max-height: 80px;
+            font-size: min(5.5vmin, 38px);
+            /* transition: margin 0.2s ease; */
         }
 
         .btn:active {
@@ -133,12 +154,15 @@
         }
 
         .progress-container {
-            width: 300px;
-            max-width: 80vw;
-            height: 4px;
+            width: 80%;
+            max-width: 500px;
+            height: 1vh;
+            min-height: 4px;
             background-color: #e0e0e0;
             border-radius: 2px;
             overflow: hidden;
+            cursor: pointer;
+            position: relative;
         }
 
         .progress-bar {
@@ -146,48 +170,62 @@
             height: 100%;
             background-color: #333;
             transition: width 0.1s linear;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .progress-handle {
+            width: 3vmin;
+            height: 3vmin;
+            min-width: 12px;
+            min-height: 12px;
+            max-width: 18px;
+            max-height: 18px;
+            background-color: #333;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2;
+            cursor: grab;
+        }
+
+        .progress-handle:active {
+            cursor: grabbing;
         }
 
         .song-indicator {
-            font-size: 16px;
+            font-size: min(3vmin, 16px);
             color: #333;
-            margin-bottom: 10px;
+            margin-bottom: 1vh;
         }
 
         .sharp, .flat {
             font-family: 'Times New Roman', Times, serif;
             position: relative;
+            /* font-size: min(5vmin, 30px); */
         }
 
-        /* Media queries for responsive layout */
-        @media (max-height: 700px) {
-            .wheel-container {
-                margin-bottom: 80px;
-            }
-            .controls-wrapper {
-                bottom: 20px;
-            }
-            .btn {
-                width: 50px;
-                height: 50px;
-            }
-            .playpause {
-                width: 70px;
-                height: 70px;
-            }
+        .key-marker .flat {
+            font-size: min(3vmin, 30px);
+        }
+        
+        .current-key .flat, .current-key .sharp {
+            font-size: min(6vmin, 48px);
         }
 
-        @media (max-height: 500px) {
-            .wheel-container {
-                margin-bottom: 60px;
-            }
-            .center-display {
-                width: 100px;
-                height: 100px;
-            }
-            .current-key {
-                font-size: 40px;
-            }
+        .current-key .flat {
+            margin-left: -1vmin;
+            padding-left: -1vmin;
+            font-size: min(6vmin, 30px);
+        }
+
+        #prev-song>span, #next-song>span {
+            font-weight: 600;
+            font-size: min(5vmin, 32px);
+            margin-top: -1.1vmin;
+            font-size: 1.5em;
         }
     </style>
 </head>
@@ -197,21 +235,22 @@
             <div class="pointer"></div>
             <div id="wheel" class="wheel"></div>
             <div class="center-display">
-                <div id="current-key" class="current-key">G</div>
+                <div id="current-key" class="current-key">C</div>
             </div>
         </div>
         
         <div class="controls-wrapper">
-            <div class="song-indicator" id="song-indicator">Song 1 of 3</div>
+            <div class="song-indicator" id="song-indicator">Song 1 of 4</div>
             
-            <div class="progress-container">
+            <div class="progress-container" id="progress-container">
                 <div id="progress-bar" class="progress-bar"></div>
+                <div id="progress-handle" class="progress-handle"></div>
             </div>
             
             <div class="controls">
-                <div id="prev-song" class="btn">←</div>
+                <div id="prev-song" class="btn"><span>←</span></div>
                 <div id="playpause" class="btn playpause">▶</div>
-                <div id="next-song" class="btn">→</div>
+                <div id="next-song" class="btn"><span>→</span></div>
             </div>
         </div>
     </div>
@@ -254,13 +293,14 @@
             11: "B",
         };
         
-        let currentTone = 7; // G
+        let currentTone = 0; // G
         let currentSong = currentSongPerTone[currentTone];
         let playing = false;
         let rotation = -currentTone * 30; // Initial rotation based on G
         let startAngle = 0;
         let currentAngle = 0;
         let isDragging = false;
+        let isProgressDragging = false;
         
         const audio = document.getElementById("myaudio");
         const wheel = document.getElementById("wheel");
@@ -269,6 +309,8 @@
         const nextSongBtn = document.getElementById("next-song");
         const prevSongBtn = document.getElementById("prev-song");
         const progressBar = document.getElementById("progress-bar");
+        const progressHandle = document.getElementById("progress-handle");
+        const progressContainer = document.getElementById("progress-container");
         const songIndicator = document.getElementById("song-indicator");
         
         // Initialize audio
@@ -308,6 +350,7 @@
                 playPauseBtn.innerHTML = "❚❚";
             }
             playing = !playing;
+            changeIndent();
         }
         
         // Switch audio function with improved rotation logic
@@ -329,11 +372,11 @@
                 wheel.style.transform = `rotate(${rotation}deg)`;
             }
             
-            if (songDelta !== 0) {
-                currentSong = (currentSongPerTone[currentTone] + songDelta + songsPerTone[currentTone]) % songsPerTone[currentTone];
-                currentSongPerTone[currentTone] = currentSong;
-                updateSongIndicator();
-            }
+            
+            currentSong = (currentSongPerTone[currentTone] + songDelta + songsPerTone[currentTone]) % songsPerTone[currentTone];
+            currentSongPerTone[currentTone] = currentSong;
+            updateSongIndicator();
+
             
             currentKeyDisplay.innerHTML = keySigs[currentTone];
             audio.src = `static/audios/${currentTone}/${currentSong}.mp3`;
@@ -342,6 +385,7 @@
                 let playPromise = audio.play();
                 playPromise.catch(() => {});
             }
+            changeIndent();
         }
         
         function updateSongIndicator() {
@@ -360,6 +404,7 @@
         
         // Touch events
         wheel.addEventListener("touchstart", handleTouchStart);
+        // wheel.addEventListener("touchend", handleTouchEnd);
         document.addEventListener("touchmove", handleTouchMove);
         document.addEventListener("touchend", handleTouchEnd);
         
@@ -394,6 +439,7 @@
             if (normalizedTone !== currentTone) {
                 // Update tone without a big wheel movement
                 currentTone = normalizedTone;
+                currentSong = currentSongPerTone[currentTone];
                 currentKeyDisplay.innerHTML = keySigs[currentTone];
                 audio.src = `static/audios/${currentTone}/${currentSong}.mp3`;
                 updateSongIndicator();
@@ -405,7 +451,7 @@
             }
         }
         
-        function endDrag() {
+        function endDrag(e) {
             if (!isDragging) return;
             isDragging = false;
             
@@ -414,24 +460,28 @@
             const wheelCenterY = rect.top + rect.height / 2;
             
             // Calculate final angle
-            const finalAngle = Math.atan2(event.clientY - wheelCenterY, event.clientX - wheelCenterX) * 180 / Math.PI;
+            const finalAngle = Math.atan2(e.clientY - wheelCenterY, e.clientX - wheelCenterX) * 180 / Math.PI;
             const totalDeltaAngle = finalAngle - startAngle;
             
             // Update rotation to the final position
-            rotation = (rotation + totalDeltaAngle) % 360;
+            // rotation = (rotation + totalDeltaAngle) % 360;
+            rotation = rotation + totalDeltaAngle;
             
             // Snap to the nearest key
             const snapAngle = Math.round(rotation / 30) * 30;
             rotation = snapAngle;
+            
             wheel.style.transform = `rotate(${rotation}deg)`;
             
             // Make sure the tone is correct
             const snapTone = Math.round(-rotation / 30) % TONES;
             currentTone = (snapTone + TONES) % TONES;
             currentKeyDisplay.innerHTML = keySigs[currentTone];
+            changeIndent();
         }
         
         function handleTouchStart(e) {
+            e.preventDefault()
             const touch = e.touches[0];
             const mouseEvent = new MouseEvent("mousedown", {
                 clientX: touch.clientX,
@@ -448,7 +498,8 @@
                 clientY: touch.clientY
             });
             drag(mouseEvent);
-            e.preventDefault();
+            // e.preventDefault();
+        
         }
         
         function handleTouchEnd(e) {
@@ -458,11 +509,6 @@
                 clientY: touch.clientY
             });
             endDrag(mouseEvent);
-            
-            // Only process tap if not dragging significantly
-            if (Math.abs(currentAngle - rotation) < 5) {
-                togglePlayPause();
-            }
         }
         
         // Keyboard controls
@@ -482,9 +528,127 @@
         
         // Update progress bar
         audio.addEventListener("timeupdate", function() {
-            const percent = (audio.currentTime / audio.duration) * 100;
-            progressBar.style.width = `${percent}%`;
+            if (!isProgressDragging) {
+                const percent = (audio.currentTime / audio.duration) * 100;
+                updateProgressBar(percent);
+            }
         });
+        
+        // Draggable progress bar functions
+        function updateProgressBar(percent) {
+            if (isNaN(percent)) percent = 0;
+            percent = Math.min(100, Math.max(0, percent));
+            progressBar.style.width = `${percent}%`;
+            progressHandle.style.left = `${percent}%`;
+        }
+        
+        function seekAudio(percent) {
+            if (audio.duration) {
+                audio.currentTime = (percent / 100) * audio.duration;
+            }
+        }
+        
+        // Progress bar click event
+        progressContainer.addEventListener("click", function(e) {
+            if (isProgressDragging) return;
+            
+            const rect = progressContainer.getBoundingClientRect();
+            const percent = ((e.clientX - rect.left) / rect.width) * 100;
+            updateProgressBar(percent);
+            seekAudio(percent);
+        });
+        
+        // Progress handle drag events
+        progressHandle.addEventListener("mousedown", startProgressDrag);
+        document.addEventListener("mousemove", dragProgress);
+        document.addEventListener("mouseup", endProgressDrag);
+        
+        // Progress handle touch events
+        progressHandle.addEventListener("touchstart", handleProgressTouchStart);
+        document.addEventListener("touchmove", handleProgressTouchMove);
+        document.addEventListener("touchend", handleProgressTouchEnd);
+        
+        function startProgressDrag(e) {
+            isProgressDragging = true;
+            e.stopPropagation();
+            e.preventDefault();
+        }
+        
+        function dragProgress(e) {
+            if (!isProgressDragging) return;
+            
+            const rect = progressContainer.getBoundingClientRect();
+            let percent = ((e.clientX - rect.left) / rect.width) * 100;
+            percent = Math.min(100, Math.max(0, percent));
+            
+            updateProgressBar(percent);
+        }
+        
+        function endProgressDrag(e) {
+            if (!isProgressDragging) return;
+            
+            const rect = progressContainer.getBoundingClientRect();
+            let percent = ((e.clientX - rect.left) / rect.width) * 100;
+            percent = Math.min(100, Math.max(0, percent));
+            
+            updateProgressBar(percent);
+            seekAudio(percent);
+            
+            isProgressDragging = false;
+        }
+        
+        function handleProgressTouchStart(e) {
+            const touch = e.touches[0];
+            isProgressDragging = true;
+            e.stopPropagation();
+            e.preventDefault();
+        }
+        
+        function handleProgressTouchMove(e) {
+            if (!isProgressDragging) return;
+            
+            const touch = e.touches[0];
+            const rect = progressContainer.getBoundingClientRect();
+            let percent = ((touch.clientX - rect.left) / rect.width) * 100;
+            percent = Math.min(100, Math.max(0, percent));
+            
+            updateProgressBar(percent);
+            e.preventDefault();
+        }
+        
+        function handleProgressTouchEnd(e) {
+            if (!isProgressDragging) return;
+            
+            const touch = e.changedTouches[0];
+            const rect = progressContainer.getBoundingClientRect();
+            let percent = ((touch.clientX - rect.left) / rect.width) * 100;
+            percent = Math.min(100, Math.max(0, percent));
+            
+            updateProgressBar(percent);
+            seekAudio(percent);
+            
+            isProgressDragging = false;
+        }
+        function changeIndent() {
+            if (playPauseBtn.innerHTML == "▶") {
+                playPauseBtn.style.textIndent = "1vmin";
+            } else {
+                playPauseBtn.style.textIndent = "0.1vmin";
+            }
+        
+            span = currentKeyDisplay.querySelector('span');
+            if (span && span.innerHTML == "♭") {
+                currentKeyDisplay.style.marginLeft = "1.3vmin";
+            } else {
+                currentKeyDisplay.style.marginLeft = "0";
+            }
+            
+        }
+        changeIndent();
+        // document.body.style.overflow = "hidden"; 
+        
+        
+
     </script>
 </body>
 </html>
