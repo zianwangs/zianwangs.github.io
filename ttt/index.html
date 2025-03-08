@@ -166,8 +166,8 @@
             // If computer goes first, make its move
             if (state.currentPlayer === 'O') {
                 state.isComputerTurn = true;
-                thinking.textContent = "Computer is thinking...";
-                setTimeout(computerMove, 1000);
+                thinking.textContent = "";
+                setTimeout(computerMove, 0);
             } else {
                 state.isComputerTurn = false;
                 thinking.textContent = "";
