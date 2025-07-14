@@ -262,7 +262,7 @@
         <div class="controls">
             <div class="control-group">
                 <label for="initialPrice">Initial Stock Price ($)</label>
-                <input type="number" id="initialPrice" value="100" min="0.01" step="0.01">
+                <input type="number" id="initialPrice" value="100" min="0" step="1">
             </div>
             
             <div class="control-group">
@@ -272,12 +272,12 @@
             
             <div class="control-group">
                 <label for="stepThreshold">Step Threshold (%)</label>
-                <input type="number" id="stepThreshold" value="-5" max="0" step="0.1">
+                <input type="number" id="stepThreshold" value="-5" max="0" step="1">
             </div>
             
             <div class="control-group">
                 <label for="rebuyCoeff">Rebuy Coefficient (x)</label>
-                <input type="number" id="rebuyCoeff" value="2" min="1" step="0.1">
+                <input type="number" id="rebuyCoeff" value="2" min="1" step="0.5">
             </div>
             
             <div class="control-group">
@@ -287,7 +287,7 @@
             
             <div class="control-group">
                 <label for="targetPrice">Target Recovery Price ($)</label>
-                <input type="number" id="targetPrice" value="100" min="0.01" step="0.01">
+                <input type="number" id="targetPrice" value="100" min="0" step="1">
             </div>
             
             <div class="control-group">
@@ -430,10 +430,19 @@
             const totalRisk = lastStep.totalInvested;
             const maxProfit = lastStep.profitAtTarget;
             const lowestPrice = lastStep.currentPrice;
+            const lowestDrop = steps[0].priceDropPercent;
             const avgCostPerShare = lastStep.avgCostPerShare;
             
             // Create summary cards
             summaryDiv.innerHTML = `
+                <div class="summary-card">
+                    <h3>Current Step</h3>
+                    <div class="value">${lastStep.step}</div>
+                </div>
+                <div class="summary-card">
+                    <h3>Lowest Price Drop</h3>
+                    <div class="value">${lowestDrop.toFixed(2)}%</div>
+                </div>
                 <div class="summary-card">
                     <h3>Total Risk</h3>
                     <div class="value">$${totalRisk.toLocaleString(undefined, {maximumFractionDigits: 0})}</div>
@@ -441,14 +450,6 @@
                 <div class="summary-card">
                     <h3>Max Profit (if recovers)</h3>
                     <div class="value ${maxProfit >= 0 ? 'positive' : 'negative'}">$${maxProfit.toLocaleString(undefined, {maximumFractionDigits: 0})}</div>
-                </div>
-                <div class="summary-card">
-                    <h3>Lowest Price</h3>
-                    <div class="value">$${lowestPrice.toFixed(2)}</div>
-                </div>
-                <div class="summary-card">
-                    <h3>Total Shares</h3>
-                    <div class="value">${lastStep.totalShares.toLocaleString(undefined, {maximumFractionDigits: 1})}</div>
                 </div>
             `;
             
@@ -474,15 +475,18 @@
                     Array.from(tableBody.rows).forEach(r => r.classList.remove('selected-row'));
                     // Highlight this row
                     row.classList.add('selected-row');
+                    // Track the selected step
+                    selectedStep = idx;
                     updateSummary(step);
                 });
             });
 
-            // Highlight the last row and update summary by default
+            // Highlight the selected row or last row by default
             if (tableBody.rows.length > 0) {
-                const lastRow = tableBody.rows[tableBody.rows.length - 1];
-                lastRow.classList.add('selected-row');
-                updateSummary(steps[steps.length - 1]);
+                const rowToHighlight = selectedStep === -1 ? tableBody.rows.length - 1 : Math.min(selectedStep, tableBody.rows.length - 1);
+                const targetRow = tableBody.rows[rowToHighlight];
+                targetRow.classList.add('selected-row');
+                updateSummary(steps[rowToHighlight]);
             }
             
             // Helper to update summary cards
@@ -492,7 +496,16 @@
                 const lowestPrice = step.currentPrice;
                 const avgCostPerShare = step.avgCostPerShare;
                 const totalShares = step.totalShares;
+                const lowestDrop = step.priceDropPercent;
                 summaryDiv.innerHTML = `
+                    <div class="summary-card">
+                        <h3>Current Step</h3>
+                        <div class="value">${step.step}</div>
+                    </div>
+                    <div class="summary-card">
+                        <h3>Lowest Price Drop</h3>
+                        <div class="value">${lowestDrop.toFixed(2)}%</div>
+                    </div>
                     <div class="summary-card">
                         <h3>Total Risk</h3>
                         <div class="value">$${Number(totalRisk).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
@@ -501,20 +514,15 @@
                         <h3>Max Profit (if recovers)</h3>
                         <div class="value ${maxProfit >= 0 ? 'positive' : 'negative'}">$${Number(maxProfit).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
                     </div>
-                    <div class="summary-card">
-                        <h3>Lowest Price</h3>
-                        <div class="value">$${lowestPrice.toFixed(2)}</div>
-                    </div>
-                    <div class="summary-card">
-                        <h3>Total Shares</h3>
-                        <div class="value">${Number(totalShares).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
-                    </div>
                 `;
             }
             
             resultsDiv.style.display = 'block';
             resultsDiv.scrollIntoView({ behavior: 'smooth' });
         }
+        
+        // Track the currently selected step
+        let selectedStep = 5; // -1 means use last row (first time load)
         
         // Initialize mode tabs and calculate on page load
         window.onload = function() {
@@ -531,7 +539,7 @@
                     modeTabs.forEach(t => t.classList.remove('active'));
                     // Add active class to clicked tab
                     this.classList.add('active');
-                    // Recalculate results
+                    // Recalculate results while maintaining selected step
                     calculateMartingale();
                 });
             });
