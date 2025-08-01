@@ -553,6 +553,16 @@
                 targetPriceInput.value = this.value;
             });
             
+            // Add Enter key listeners to all input fields
+            const inputs = document.querySelectorAll('input, select');
+            inputs.forEach(input => {
+                input.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        calculateMartingale();
+                    }
+                });
+            });
+            
             calculateMartingale();
         };
     </script>
