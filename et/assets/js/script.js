@@ -239,7 +239,7 @@ class EarTrainingGame {
         setTimeout(() => {
             this.generateNewMelody();
             this.playMelody();
-        }, 1000);
+        }, 500);
     }
     
     showImmediateFeedback(isCorrect, note) {
