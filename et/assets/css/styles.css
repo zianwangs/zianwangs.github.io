@@ -1,0 +1,304 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    color: #333;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 30px;
+    color: white;
+}
+
+header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+header p {
+    font-size: 1.2rem;
+    opacity: 0.9;
+}
+
+.game-controls {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 30px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    backdrop-filter: blur(10px);
+}
+
+.settings {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+}
+
+.settings label {
+    font-weight: 600;
+    color: #555;
+}
+
+.settings select {
+    padding: 8px 12px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 16px;
+    background: white;
+    cursor: pointer;
+}
+
+.btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+}
+
+.btn.primary {
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    color: white;
+}
+
+.btn.secondary {
+    background: linear-gradient(45deg, #f093fb, #f5576c);
+    color: white;
+}
+
+.stats {
+    display: flex;
+    gap: 30px;
+    font-weight: 600;
+    color: #555;
+}
+
+.game-area {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 15px;
+    padding: 30px;
+    margin-bottom: 30px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    backdrop-filter: blur(10px);
+}
+
+.melody-display {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.melody-display h3 {
+    margin-bottom: 15px;
+    color: #555;
+}
+
+.melody-notes {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    min-height: 60px;
+    align-items: center;
+}
+
+.note-display {
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    color: white;
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 18px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    animation: fadeIn 0.3s ease;
+}
+
+.note-display.correct {
+    background: linear-gradient(45deg, #56ab2f, #a8e6cf);
+    animation: correctPulse 0.5s ease;
+}
+
+.note-display.placeholder {
+    background: linear-gradient(45deg, #ddd, #bbb);
+    color: #666;
+    opacity: 0.7;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.piano-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.piano {
+    display: flex;
+    position: relative;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+}
+
+.piano-key {
+    position: relative;
+    cursor: pointer;
+    transition: all 0.1s ease;
+    user-select: none;
+}
+
+.piano-key.white {
+    width: 70px;
+    height: 200px;
+    background: white;
+    border: 1px solid #ddd;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 10px;
+    font-weight: 600;
+    color: #333;
+    font-size: 14px;
+}
+
+
+
+.piano-key:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.piano-key.active {
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    color: white;
+    transform: translateY(2px);
+}
+
+.piano-key.white.active {
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    color: white;
+}
+
+.piano-key.correct-note {
+    background: linear-gradient(45deg, #56ab2f, #a8e6cf) !important;
+    color: white !important;
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(86, 171, 47, 0.6);
+}
+
+.piano-key.incorrect-note {
+    background: linear-gradient(45deg, #f093fb, #f5576c) !important;
+    color: white !important;
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(240, 147, 251, 0.6);
+    animation: incorrectShake 0.5s ease;
+}
+
+.feedback {
+    text-align: center;
+    padding: 15px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 18px;
+    margin-top: 20px;
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.feedback.correct {
+    background: linear-gradient(45deg, #56ab2f, #a8e6cf);
+    color: white;
+    animation: correctPulse 0.5s ease;
+}
+
+.feedback.incorrect {
+    background: linear-gradient(45deg, #f093fb, #f5576c);
+    color: white;
+    animation: incorrectShake 0.5s ease;
+}
+
+@keyframes correctPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+@keyframes incorrectShake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+.instructions {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    backdrop-filter: blur(10px);
+}
+
+.instructions h3 {
+    margin-bottom: 15px;
+    color: #555;
+}
+
+.instructions ol {
+    padding-left: 20px;
+}
+
+.instructions li {
+    margin-bottom: 8px;
+    line-height: 1.6;
+    color: #666;
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 10px;
+    }
+    
+    header h1 {
+        font-size: 2rem;
+    }
+    
+    .settings {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .piano-key.white {
+        width: 50px;
+        height: 150px;
+        font-size: 10px;
+    }
+    
+
+} 
