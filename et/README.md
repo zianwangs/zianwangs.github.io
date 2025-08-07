@@ -45,11 +45,13 @@ et/
 │   │   └── styles.css      # Modern CSS styling with animations
 │   ├── js/
 │   │   └── script.js       # Game logic and audio generation
-│   └── audio/              # Piano MP3 files
-│       ├── c3.mp3
-│       ├── d3.mp3
-│       ├── e3.mp3
-│       └── ... (all diatonic notes)
+│   ├── audio/              # Piano MP3 files
+│   │   ├── c3.mp3
+│   │   ├── d3.mp3
+│   │   ├── e3.mp3
+│   │   └── ... (all diatonic notes)
+│   └── images/
+│       └── favicon.png     # Piano icon for browser tabs
 └── README.md               # This documentation
 ```
 
