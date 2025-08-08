@@ -284,7 +284,6 @@ class EarTrainingGame {
             key.style.background = '';
             key.style.color = '';
         });
-        console.log('Piano keys reset');
     }
     
     showImmediateFeedback(isCorrect, note) {
