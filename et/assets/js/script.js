@@ -102,7 +102,7 @@ class EarTrainingGame {
         this.notes.forEach((note, index) => {
             const key = document.createElement('div');
             key.className = 'piano-key white';
-            key.textContent = note.name; // Show full note name like C3, D3, etc.
+            key.textContent = note.key === 'C' || note.key === 'F' ? note.name : '';
             key.dataset.note = note.name;
             
             key.addEventListener('click', () => {
@@ -119,10 +119,8 @@ class EarTrainingGame {
     handleKeyPress(key) {
         // Map keyboard keys to diatonic notes
         const keyMap = {
-            'C': 'C3', 'D': 'D3', 'E': 'E3', 'F': 'F3', 'G': 'G3', 'A': 'A3', 'B': 'B3',
-            '1': 'C3', '2': 'D3', '3': 'E3', '4': 'F3', '5': 'G3', '6': 'A3', '7': 'B3',
-            'Q': 'C4', 'W': 'D4', 'E': 'E4', 'R': 'F4', 'T': 'G4', 'Y': 'A4', 'U': 'B4',
-            'Z': 'C5'
+            'A': 'C3', 'S': 'D3', 'D': 'E3', 'F': 'F3', 'G': 'G3', 'H': 'A3', 'J': 'B3', 'K': 'C4',
+            'Q': 'C4', 'W': 'D4', 'E': 'E4', 'R': 'F4', 'T': 'G4', 'Y': 'A4', 'U': 'B4', 'I': 'C5',
         };
         
         const noteName = keyMap[key];
