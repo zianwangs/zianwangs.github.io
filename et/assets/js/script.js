@@ -119,8 +119,8 @@ class EarTrainingGame {
     handleKeyPress(key) {
         // Map keyboard keys to diatonic notes
         const keyMap = {
-            'A': 'C3', 'S': 'D3', 'D': 'E3', 'F': 'F3', 'G': 'G3', 'H': 'A3', 'J': 'B3', 'K': 'C4',
-            'Q': 'C4', 'W': 'D4', 'E': 'E4', 'R': 'F4', 'T': 'G4', 'Y': 'A4', 'U': 'B4', 'I': 'C5',
+            'Q': 'C3', 'W': 'D3', 'E': 'E3', 'R': 'F3', 'T': 'G3', 'Y': 'A3', 'U': 'B3', 'I': 'C4',
+            '1': 'C4', '2': 'D4', '3': 'E4', '4': 'F4', '5': 'G4', '6': 'A4', '7': 'B4', '8': 'C5',
         };
         
         const noteName = keyMap[key];
