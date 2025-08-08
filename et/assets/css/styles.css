@@ -218,7 +218,7 @@ header p {
     color: white !important;
     transform: scale(1.05);
     box-shadow: 0 0 20px rgba(240, 147, 251, 0.6);
-    animation: incorrectShake 0.5s ease;
+    /* animation: incorrectShake 0.5s ease; */
 }
 
 .feedback {
