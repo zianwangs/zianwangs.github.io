@@ -6,6 +6,7 @@ class EarTrainingGame {
         this.currentNoteIndex = 0; // Track which note we're currently on
         this.score = 0;
         this.streak = 0;
+        this.maxStreak = 0;
         this.isPlaying = false;
         this.isFirstTime = true;
         
@@ -235,6 +236,8 @@ class EarTrainingGame {
         } else {
             // Wrong note - don't add to melody, just show feedback
             // User can try again immediately
+            this.streak = 0;
+            this.updateStats();
         }
     }
     
@@ -263,15 +266,14 @@ class EarTrainingGame {
         this.showFeedback('Correct! 🎉', 'correct');
         this.score += 10;
         this.streak++;
+        if (this.streak > this.maxStreak) {
+            this.maxStreak = this.streak;
+        }
         this.updateStats();
-        
-        // Reset all piano key styles immediately
-        this.resetPianoKeys();
-        
         // Reset again after a short delay to ensure cleanup
         setTimeout(() => {
             this.resetPianoKeys();
-        }, 100);
+        }, 300);
         
         // Immediately generate and play next melody
         setTimeout(() => {
@@ -328,6 +330,7 @@ class EarTrainingGame {
     updateStats() {
         document.getElementById('score').textContent = this.score;
         document.getElementById('streak').textContent = this.streak;
+        document.getElementById('maxStreak').textContent = this.maxStreak;
     }
 }
 
