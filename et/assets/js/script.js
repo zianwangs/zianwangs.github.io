@@ -161,6 +161,7 @@ class EarTrainingGame {
         
         this.updateUserMelodyDisplay();
         this.clearFeedback();
+        this.playMelody();
         
     }
     
