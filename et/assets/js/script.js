@@ -79,6 +79,7 @@ class EarTrainingGame {
                 "A4":  "A4v16.flac",
                 "C5":  "C5v16.flac",
             },
+            curve: "exponential",
             baseUrl: "https://raw.githubusercontent.com/sfzinstruments/SalamanderGrandPiano/master/Samples/",
             onload: () => {
                 this.samplesLoaded = true;
