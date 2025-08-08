@@ -144,7 +144,7 @@ class EarTrainingGame {
         // Use Tone.js with piano-mp3 samples (all keys available)
         if (this.synth && this.samplesLoaded) {
             // Play the exact note - no transposition needed!
-            this.synth.triggerAttackRelease(note.name, "2n");
+            this.synth.triggerAttackRelease(note.name, "1n");
         }
         
         // Visual feedback only if requested
@@ -205,7 +205,7 @@ class EarTrainingGame {
                 const note = this.currentMelody[index];
                 this.playNote(note, false); // No visual feedback during melody playback
                 index++;
-                setTimeout(playNextNote, 600); // 600ms between notes
+                setTimeout(playNextNote, 700); // 600ms between notes
             } else {
                 this.isPlaying = false;
                 this.isFirstTime = false;
