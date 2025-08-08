@@ -167,6 +167,7 @@ class EarTrainingGame {
         
         this.updateUserMelodyDisplay();
         this.clearFeedback();
+        this.resetPianoKeys(); // Reset piano key styles
         if (this.isFirstTime) return;
         
         // Only play melody if samples are loaded
@@ -257,11 +258,21 @@ class EarTrainingGame {
         this.streak++;
         this.updateStats();
         
+        // Reset all piano key styles
+        this.resetPianoKeys();
+        
         // Immediately generate and play next melody
         setTimeout(() => {
             this.generateNewMelody();
             this.playMelody();
         }, 500);
+    }
+    
+    resetPianoKeys() {
+        const allKeys = document.querySelectorAll('.piano-key');
+        allKeys.forEach(key => {
+            key.classList.remove('active', 'correct-note', 'incorrect-note');
+        });
     }
     
     showImmediateFeedback(isCorrect, note) {

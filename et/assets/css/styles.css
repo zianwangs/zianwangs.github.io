@@ -295,9 +295,9 @@ header p {
     }
     
     .piano-key.white {
-        width: 50px;
+        width: 60px;
         height: 150px;
-        font-size: 10px;
+        font-size: 12px;
     }
     
 
