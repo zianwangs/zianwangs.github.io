@@ -42,55 +42,49 @@ class EarTrainingGame {
     
     setupToneJS() {
         // Create a sampler with local piano MP3 files
-        this.synth = new Tone.Sampler({
-            urls: {
-                "C3": "c3.mp3",
-                "D3": "d3.mp3",
-                "E3": "e3.mp3",
-                "F3": "f3.mp3",
-                "G3": "g3.mp3",
-                "A3": "a3.mp3",
-                "B3": "b3.mp3",
-                "C4": "c4.mp3",
-                "D4": "d4.mp3",
-                "E4": "e4.mp3",
-                "F4": "f4.mp3",
-                "G4": "g4.mp3",
-                "A4": "a4.mp3",
-                "B4": "b4.mp3",
-                "C5": "c5.mp3"
-            },
-            volume: 15,
-            baseUrl: "assets/audio/",
-            onload: () => {
-                this.samplesLoaded = true;
-            }
-        }).toDestination();
         // this.synth = new Tone.Sampler({
         //     urls: {
-        //         // minor third step
-        //         "C3": "C3v3.flac",
-        //         "D#3": "D#3v3.flac",
-        //         "E3": "C4v3.flac",
-        //         "F3": "C4v4.flac",
-        //         "G3": "C4v5.flac",
-        //         "A3": "C4v6.flac",
-        //         "B3": "C4v7.flac",
-        //         "C4": "C4v8.flac",
-        //         "D4": "C4v9.flac",
-        //         "E4": "C4v10.flac",
-        //         "F4": "C4v11.flac",
-        //         "G4": "C4v12.flac",
-        //         "A4": "C4v13.flac",
-        //         "B4": "C4v14.flac",
-        //         "C5": "C4v15.flac"
+        //         "C3": "c3.mp3",
+        //         "D3": "d3.mp3",
+        //         "E3": "e3.mp3",
+        //         "F3": "f3.mp3",
+        //         "G3": "g3.mp3",
+        //         "A3": "a3.mp3",
+        //         "B3": "b3.mp3",
+        //         "C4": "c4.mp3",
+        //         "D4": "d4.mp3",
+        //         "E4": "e4.mp3",
+        //         "F4": "f4.mp3",
+        //         "G4": "g4.mp3",
+        //         "A4": "a4.mp3",
+        //         "B4": "b4.mp3",
+        //         "C5": "c5.mp3"
         //     },
         //     volume: 15,
-        //     baseUrl: "https://raw.githubusercontent.com/sfzinstruments/SalamanderGrandPiano/master/Samples/",
+        //     baseUrl: "assets/audio/",
         //     onload: () => {
         //         this.samplesLoaded = true;
         //     }
         // }).toDestination();
+        this.synth = new Tone.Sampler({
+            urls: {
+                // minor third step
+                "C3":  "C3v16.flac",
+                "D#3": "D%233v16.flac",
+                "F#3": "F%233v16.flac",
+                "A3":  "A3v16.flac",
+                "C4":  "C4v16.flac",
+                "D#4": "D%234v16.flac",
+                "F#4": "F%234v16.flac",
+                "A4":  "A4v16.flac",
+                "C5":  "C5v16.flac",
+            },
+            baseUrl: "https://raw.githubusercontent.com/sfzinstruments/SalamanderGrandPiano/master/Samples/",
+            onload: () => {
+                this.samplesLoaded = true;
+            }
+        }).toDestination();
+        
         
         this.samplesLoaded = false;
         
@@ -122,8 +116,6 @@ class EarTrainingGame {
     createPiano() {
         const piano = document.getElementById('piano');
         piano.innerHTML = '';
-        
-
         
         // Create white keys first
         this.notes.forEach((note, index) => {
@@ -165,11 +157,11 @@ class EarTrainingGame {
         }
     }
     
-        playNote(note, showVisualFeedback = true) {
+    playNote(note, showVisualFeedback = true) {
         // Use Tone.js with piano-mp3 samples (all keys available)
         if (this.synth && this.samplesLoaded) {
             // Play the exact note - no transposition needed!
-            this.synth.triggerAttackRelease(note.name, "1n");
+            this.synth.triggerAttackRelease(note.name, "2n");
         }
         
         // Visual feedback only if requested
@@ -192,7 +184,7 @@ class EarTrainingGame {
         
         for (let i = 0; i < noteCount; i++) {
             const randomNote = this.notes[Math.floor(Math.random() * this.notes.length)];
-            this.currentMelody.push(randomNote);
+            this.currentMelody.push(randomNote);            
         }
         
         this.updateUserMelodyDisplay();
@@ -231,7 +223,7 @@ class EarTrainingGame {
                 const note = this.currentMelody[index];
                 this.playNote(note, false); // No visual feedback during melody playback
                 index++;
-                setTimeout(playNextNote, 700); // 600ms between notes
+                setTimeout(playNextNote, 1000); // 600ms between notes
             } else {
                 this.isPlaying = false;
                 this.isFirstTime = false;
@@ -299,13 +291,13 @@ class EarTrainingGame {
         // Reset again after a short delay to ensure cleanup
         setTimeout(() => {
             this.resetPianoKeys();
-        }, 300);
+        }, 800);
         
         // Immediately generate and play next melody
         setTimeout(() => {
             this.generateNewMelody();
             this.playMelody();
-        }, 700);
+        }, 1000);
     }
     
     resetPianoKeys() {
@@ -330,14 +322,19 @@ class EarTrainingGame {
             // Add appropriate feedback class
             if (isCorrect) {
                 keyElement.classList.add('correct-note');
+                // Remove feedback after a short delay
+                setTimeout(() => {
+                    keyElement.classList.remove('correct-note', 'incorrect-note');
+                }, 600);
             } else {
                 keyElement.classList.add('incorrect-note');
+                // Remove feedback after a short delay
+                setTimeout(() => {
+                    keyElement.classList.remove('correct-note', 'incorrect-note');
+                }, 400);
             }
             
-            // Remove feedback after a short delay
-            setTimeout(() => {
-                keyElement.classList.remove('correct-note', 'incorrect-note');
-            }, 1000);
+
         }
     }
     
