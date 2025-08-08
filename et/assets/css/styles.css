@@ -302,6 +302,6 @@ header p {
     
     .piano-container {
         overflow-x: auto;
-        padding: 0 10px;
+        padding: 0;
     }
 } 
