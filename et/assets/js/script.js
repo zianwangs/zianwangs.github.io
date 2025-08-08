@@ -59,6 +59,7 @@ class EarTrainingGame {
                 "B4": "b4.mp3",
                 "C5": "c5.mp3"
             },
+            volume: 10,
             baseUrl: "assets/audio/",
             onload: () => {
                 this.samplesLoaded = true;
@@ -171,7 +172,10 @@ class EarTrainingGame {
         this.updateUserMelodyDisplay();
         this.clearFeedback();
         this.resetPianoKeys(); // Reset piano key styles
-        if (this.isFirstTime) return;
+        if (this.isFirstTime) {
+            this.isFirstTime = false;
+            return;
+        }
         
         // Only play melody if samples are loaded
         if (this.samplesLoaded) {
