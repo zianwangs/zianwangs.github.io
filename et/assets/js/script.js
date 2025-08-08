@@ -59,7 +59,7 @@ class EarTrainingGame {
                 "B4": "b4.mp3",
                 "C5": "c5.mp3"
             },
-            volume: 10,
+            volume: 15,
             baseUrl: "assets/audio/",
             onload: () => {
                 this.samplesLoaded = true;
@@ -143,7 +143,7 @@ class EarTrainingGame {
         // Use Tone.js with piano-mp3 samples (all keys available)
         if (this.synth && this.samplesLoaded) {
             // Play the exact note - no transposition needed!
-            this.synth.triggerAttackRelease(note.name, "4n");
+            this.synth.triggerAttackRelease(note.name, "2n");
         }
         
         // Visual feedback only if requested
