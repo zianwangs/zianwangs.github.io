@@ -118,6 +118,10 @@ class EarTrainingGame {
     
     handleKeyPress(key) {
         // Map keyboard keys to diatonic notes
+        if (key === ' ' && this.samplesLoaded) {
+            this.playMelody();
+            return;
+        }
         const keyMap = {
             'Q': 'C3', 'W': 'D3', 'E': 'E3', 'R': 'F3', 'T': 'G3', 'Y': 'A3', 'U': 'B3', 'I': 'C4',
             '1': 'C4', '2': 'D4', '3': 'E4', '4': 'F4', '5': 'G4', '6': 'A4', '7': 'B4', '8': 'C5',
