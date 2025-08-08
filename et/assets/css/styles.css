@@ -101,7 +101,7 @@ header p {
 .game-area {
     background: rgba(255, 255, 255, 0.95);
     border-radius: 15px;
-    padding: 5px;
+    /* padding: 5px; */
     margin-bottom: 30px;
     box-shadow: 0 8px 32px rgba(0,0,0,0.1);
     backdrop-filter: blur(10px);
@@ -281,9 +281,6 @@ header p {
 }
 
 @media (max-width: 768px) {
-    .container {
-        padding: 10px;
-    }
     
     header h1 {
         font-size: 2rem;
@@ -295,13 +292,12 @@ header p {
     }
     
     .piano-key.white {
-        width: 70px !important;
+        width: 80px !important;
         height: 150px;
         font-size: 12px;
     }
     
     .piano-container {
         overflow-x: auto;
-        padding: 0;
     }
 } 
