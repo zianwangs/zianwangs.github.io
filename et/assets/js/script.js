@@ -59,7 +59,12 @@ class EarTrainingGame {
                 "C5": "c5.mp3"
             },
             baseUrl: "assets/audio/",
+            onload: () => {
+                this.samplesLoaded = true;
+            }
         }).toDestination();
+        
+        this.samplesLoaded = false;
         
         // Start audio context on first user interaction
         document.addEventListener('click', () => {
@@ -131,7 +136,7 @@ class EarTrainingGame {
     
         playNote(note, showVisualFeedback = true) {
         // Use Tone.js with piano-mp3 samples (all keys available)
-        if (this.synth) {
+        if (this.synth && this.samplesLoaded) {
             // Play the exact note - no transposition needed!
             this.synth.triggerAttackRelease(note.name, "4n");
         }
@@ -161,8 +166,21 @@ class EarTrainingGame {
         
         this.updateUserMelodyDisplay();
         this.clearFeedback();
-        this.playMelody();
         
+        // Only play melody if samples are loaded
+        if (this.samplesLoaded) {
+            this.playMelody();
+        } else {
+            // Wait for samples to load, then play
+            const checkLoaded = () => {
+                if (this.samplesLoaded) {
+                    this.playMelody();
+                } else {
+                    setTimeout(checkLoaded, 100);
+                }
+            };
+            checkLoaded();
+        }
     }
     
     playMelody() {
