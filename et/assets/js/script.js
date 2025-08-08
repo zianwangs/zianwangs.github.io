@@ -7,6 +7,7 @@ class EarTrainingGame {
         this.score = 0;
         this.streak = 0;
         this.isPlaying = false;
+        this.isFirstTime = true;
         
         // Diatonic notes from C3 to C5 (C major scale)
         this.notes = [
@@ -166,6 +167,7 @@ class EarTrainingGame {
         
         this.updateUserMelodyDisplay();
         this.clearFeedback();
+        if (this.isFirstTime) return;
         
         // Only play melody if samples are loaded
         if (this.samplesLoaded) {
@@ -197,6 +199,7 @@ class EarTrainingGame {
                 setTimeout(playNextNote, 600); // 600ms between notes
             } else {
                 this.isPlaying = false;
+                this.isFirstTime = false;
             }
         };
         
