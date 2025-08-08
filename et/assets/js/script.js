@@ -86,7 +86,7 @@ class EarTrainingGame {
         
         // Keyboard support
         document.addEventListener('keydown', (e) => {
-            this.handleKeyPress(e.key.toUpperCase());
+            this.handleKeyPress(e, e.key.toUpperCase());
         });
         
 
@@ -116,10 +116,11 @@ class EarTrainingGame {
 
     }
     
-    handleKeyPress(key) {
+    handleKeyPress(e, key) {
         // Map keyboard keys to diatonic notes
         if (key === ' ' && this.samplesLoaded) {
             this.playMelody();
+            e.preventDefault();
             return;
         }
         const keyMap = {
