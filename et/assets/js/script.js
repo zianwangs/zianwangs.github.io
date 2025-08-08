@@ -66,6 +66,31 @@ class EarTrainingGame {
                 this.samplesLoaded = true;
             }
         }).toDestination();
+        // this.synth = new Tone.Sampler({
+        //     urls: {
+        //         // minor third step
+        //         "C3": "C3v3.flac",
+        //         "D#3": "D#3v3.flac",
+        //         "E3": "C4v3.flac",
+        //         "F3": "C4v4.flac",
+        //         "G3": "C4v5.flac",
+        //         "A3": "C4v6.flac",
+        //         "B3": "C4v7.flac",
+        //         "C4": "C4v8.flac",
+        //         "D4": "C4v9.flac",
+        //         "E4": "C4v10.flac",
+        //         "F4": "C4v11.flac",
+        //         "G4": "C4v12.flac",
+        //         "A4": "C4v13.flac",
+        //         "B4": "C4v14.flac",
+        //         "C5": "C4v15.flac"
+        //     },
+        //     volume: 15,
+        //     baseUrl: "https://raw.githubusercontent.com/sfzinstruments/SalamanderGrandPiano/master/Samples/",
+        //     onload: () => {
+        //         this.samplesLoaded = true;
+        //     }
+        // }).toDestination();
         
         this.samplesLoaded = false;
         
@@ -195,6 +220,7 @@ class EarTrainingGame {
     }
     
     playMelody() {
+        if (!this.samplesLoaded) return;
         if (this.isPlaying) return;
         
         this.isPlaying = true;
