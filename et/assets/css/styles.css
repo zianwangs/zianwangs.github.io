@@ -295,10 +295,13 @@ header p {
     }
     
     .piano-key.white {
-        width: 60px;
+        width: 70px !important;
         height: 150px;
         font-size: 12px;
     }
     
-
+    .piano-container {
+        overflow-x: auto;
+        padding: 0 10px;
+    }
 } 

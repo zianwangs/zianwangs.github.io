@@ -258,8 +258,13 @@ class EarTrainingGame {
         this.streak++;
         this.updateStats();
         
-        // Reset all piano key styles
+        // Reset all piano key styles immediately
         this.resetPianoKeys();
+        
+        // Reset again after a short delay to ensure cleanup
+        setTimeout(() => {
+            this.resetPianoKeys();
+        }, 100);
         
         // Immediately generate and play next melody
         setTimeout(() => {
@@ -271,8 +276,15 @@ class EarTrainingGame {
     resetPianoKeys() {
         const allKeys = document.querySelectorAll('.piano-key');
         allKeys.forEach(key => {
+            // Remove all possible feedback classes
             key.classList.remove('active', 'correct-note', 'incorrect-note');
+            // Reset any inline styles that might be lingering
+            key.style.transform = '';
+            key.style.boxShadow = '';
+            key.style.background = '';
+            key.style.color = '';
         });
+        console.log('Piano keys reset');
     }
     
     showImmediateFeedback(isCorrect, note) {
