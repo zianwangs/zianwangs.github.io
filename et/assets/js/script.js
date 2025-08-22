@@ -283,7 +283,10 @@ class EarTrainingGame {
     
     handleMelodyComplete() {
         this.showFeedback('Correct! 🎉', 'correct');
-        this.score += 10 * (this.currentMelody.length + this.streak);
+        // base score
+        this.score += 10 * this.currentMelody.length;
+        // bonus proportional to length
+        this.score += 10 * this.streak * (this.currentMelody.length - 1);
         this.streak++;
         if (this.streak > this.maxStreak) {
             this.maxStreak = this.streak;
