@@ -9,6 +9,7 @@ class EarTrainingGame {
         this.maxStreak = 0;
         this.isPlaying = false;
         this.isFirstTime = true;
+        this.noteCount = parseInt(document.getElementById('noteCount').value);
         
         // Diatonic notes from C3 to C5 (C major scale)
         this.notes = [
@@ -179,6 +180,10 @@ class EarTrainingGame {
     
     generateNewMelody() {
         const noteCount = parseInt(document.getElementById('noteCount').value);
+        if (noteCount != this.noteCount) {
+            this.streak = 0;
+        }
+        this.noteCount = noteCount;
         this.currentMelody = [];
         this.userMelody = [];
         this.currentNoteIndex = 0;
