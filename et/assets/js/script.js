@@ -80,12 +80,12 @@ class EarTrainingGame {
                 "A4":  "A4v12.flac",
                 "C5":  "C5v12.flac",
             },
-            envelope: {
-                attack: 0.1,
-                decay: 0.2,
-                sustain: 0.5,
-                release: 1.0  // Longer release prevents abrupt cutoff
-            },
+            // envelope: {
+            //     attack: 0.005,
+            //     decay: 0.1,
+            //     sustain: 0.3,
+            //     release: 1  // Longer release prevents abrupt cutoff
+            // },
             curve: "exponential",
             baseUrl: "https://raw.githubusercontent.com/sfzinstruments/SalamanderGrandPiano/master/Samples/",
             onload: () => {
@@ -169,7 +169,7 @@ class EarTrainingGame {
         // Use Tone.js with piano-mp3 samples (all keys available)
         if (this.synth && this.samplesLoaded) {
             // Play the exact note - no transposition needed!
-            this.synth.triggerAttackRelease(note.name, "4n");
+            this.synth.triggerAttackRelease(note.name, 0.65);
         }
         
         // Visual feedback only if requested
@@ -235,7 +235,7 @@ class EarTrainingGame {
                 const note = this.currentMelody[index];
                 this.playNote(note, false); // No visual feedback during melody playback
                 index++;
-                setTimeout(playNextNote, 600); 
+                setTimeout(playNextNote, 650); 
             } else {
                 this.isPlaying = false;
                 this.isFirstTime = false;
