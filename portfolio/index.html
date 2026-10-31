@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Strategy portfolios</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fff;
+    --fg: #000;
+    --muted: #666;
+    --rule: #e6e6e6;
+    --font: "Instrument Sans", -apple-system, "Helvetica Neue", Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { background: var(--bg); }
+  body {
+    margin: 0;
+    padding: 56px 24px 80px;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font);
+    font-size: 15px;
+    line-height: 1.5;
+    font-variant-numeric: tabular-nums;
+  }
+  .wrap { max-width: 960px; margin: 0 auto; }
+  a { color: inherit; }
+  a:focus-visible, button:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
+
+  header { margin-bottom: 40px; }
+  h1 { margin: 0; font-size: 28px; font-weight: 600; letter-spacing: -0.02em; }
+  #meta { margin: 6px 0 0; color: var(--muted); font-size: 13px; }
+
+  .chart { position: relative; height: 260px; }
+  .chart.tall { height: 320px; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { padding: 9px 0; text-align: right; border-bottom: 1px solid var(--rule); white-space: nowrap; }
+  th:first-child, td:first-child { text-align: left; }
+  th { font-weight: 500; color: var(--muted); border-bottom-color: var(--fg); }
+  td.name { font-weight: 500; }
+  .scroll { overflow-x: auto; }
+
+  #overview { margin-bottom: 64px; }
+  #overview .scroll { margin-top: 24px; }
+
+  .strat { padding-top: 40px; margin-top: 40px; border-top: 1px solid var(--fg); }
+  .head { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; flex-wrap: wrap; }
+  h2 { margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -0.01em; }
+  .note { margin: 2px 0 0; color: var(--muted); font-size: 13px; }
+  .val { text-align: right; }
+  .big { display: block; font-size: 44px; font-weight: 500; letter-spacing: -0.03em; line-height: 1.05; }
+  .sub { color: var(--muted); font-size: 13px; }
+  .stats { display: flex; gap: 40px; margin: 20px 0 16px; flex-wrap: wrap; }
+  .stats div span { display: block; color: var(--muted); font-size: 12px; }
+  .stats div b { font-weight: 500; font-size: 15px; }
+  .strat .scroll { margin-top: 20px; }
+
+  .err { color: var(--fg); border: 1px solid var(--fg); padding: 12px 14px; font-size: 13px; margin-top: 16px; }
+  .loading { color: var(--muted); }
+  footer { margin-top: 72px; color: var(--muted); font-size: 12px; }
+
+  @media (max-width: 600px) {
+    body { padding: 32px 16px 56px; }
+    .val { text-align: left; }
+    .big { font-size: 36px; }
+    .stats { gap: 24px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1 id="title">Strategy portfolios</h1>
+    <p id="meta" class="loading">Loading prices…</p>
+  </header>
+
+  <section id="overview" hidden>
+    <div class="chart tall"><canvas id="cmp" role="img" aria-label="All strategies compared"></canvas></div>
+    <div class="scroll"><table id="sum"></table></div>
+  </section>
+
+  <main id="list"></main>
+
+  <footer>Prices from Yahoo Finance, daily closes, may be delayed. Static weights from the start date, no rebalancing, no fees or financing costs.</footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
