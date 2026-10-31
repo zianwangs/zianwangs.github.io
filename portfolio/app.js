@@ -26,7 +26,7 @@
   async function fetchSymbol(symbol, p1, p2) {
     const base = "https://query1.finance.yahoo.com/v8/finance/chart/" + encodeURIComponent(symbol) +
       "?period1=" + p1 + "&period2=" + p2 + "&interval=1d&events=div%7Csplit";
-    const attempts = [base, ...(CFG.proxies || []).map(p => p + encodeURIComponent(base))];
+    const attempts = [(CFG.proxies || []).map(p => p + encodeURIComponent(base))];
     let lastErr;
     for (const url of attempts) {
       try {
@@ -92,12 +92,15 @@
     const prev = rows.length > 1 ? rows[rows.length - 2] : null;
     let peak = -Infinity, mdd = 0;
     rows.forEach(r => { peak = Math.max(peak, r.v); mdd = Math.min(mdd, r.v / peak - 1); });
+    const vs = rows.map(r => r.v);
+    const high = Math.max(...vs) / BASE - 1;
+    const low = Math.min(...vs) / BASE - 1;
 
     return {
       rows, legs, last, prev,
       ret: last.v / BASE - 1,
       day: prev ? last.v / prev.v - 1 : null,
-      mdd
+      mdd, high, low
     };
   }
 
@@ -166,6 +169,8 @@
       "<div class='stats'>" +
       "<div><span>Last close</span><b>" + esc(r.last.d) + "</b></div>" +
       "<div><span>1 day</span><b>" + pct(r.day) + "</b></div>" +
+      "<div><span>Peak return</span><b>" + pct(r.high) + "</b></div>" +
+      "<div><span>Lowest return</span><b>" + pct(r.low) + "</b></div>" +
       "<div><span>Max drawdown</span><b>" + pct(r.mdd) + "</b></div>" +
       "<div><span>Trading days</span><b>" + r.rows.length + "</b></div></div>" +
       "<div class='chart'><canvas role='img' aria-label='" + esc(s.name) + " value'></canvas></div>" +
@@ -210,12 +215,12 @@
       options: baseOptions(true)
     });
 
-    const head = "<tr><th>Strategy</th><th>Start date</th><th>Value</th><th>Return</th><th>1 day</th><th>Max drawdown</th></tr>";
+    const head = "<tr><th>Strategy</th><th>Start date</th><th>Value</th><th>Return</th><th>1 day</th><th>Peak</th><th>Low</th><th>Max drawdown</th></tr>";
     const body = items.map((x, i) => x.r
       ? "<tr><td class='name'><a href='#s" + i + "'>" + esc(x.s.name) + "</a></td><td>" + esc(x.s.startDate) +
         "</td><td>" + num(x.r.last.v) + "</td><td>" + pct(x.r.ret) + "</td><td>" + pct(x.r.day) +
-        "</td><td>" + pct(x.r.mdd) + "</td></tr>"
-      : "<tr><td class='name'>" + esc(x.s.name) + "</td><td colspan='5'>Unavailable</td></tr>").join("");
+        "</td><td>" + pct(x.r.high) + "</td><td>" + pct(x.r.low) + "</td><td>" + pct(x.r.mdd) + "</td></tr>"
+      : "<tr><td class='name'>" + esc(x.s.name) + "</td><td colspan='7'>Unavailable</td></tr>").join("");
     $("#sum").innerHTML = head + body;
   }
 
@@ -255,7 +260,7 @@
         $("#list").appendChild(el);
       }
     });
-    renderOverview(items);
+    // renderOverview(items);
 
     const meta = $("#meta");
     meta.classList.remove("loading");

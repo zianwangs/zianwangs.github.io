@@ -22,8 +22,7 @@ window.PORTFOLIO_CONFIG = {
   // Tried in order if the direct Yahoo request is blocked by the browser (CORS).
   // For a stable setup, replace with your own Cloudflare Worker URL, e.g. "https://your-worker.workers.dev/?url="
   proxies: [
-    "https://corsproxy.io/?url=",
-    "https://api.allorigins.win/raw?url="
+    "https://eumathes.yaphters.workers.dev/?url=",
   ],
 
   strategies: [
