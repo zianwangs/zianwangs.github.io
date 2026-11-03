@@ -37,11 +37,24 @@
         if (!res) throw new Error((j.chart && j.chart.error && j.chart.error.description) || "No data");
         const off = res.meta.gmtoffset || 0;
         const closes = res.indicators.quote[0].close || [];
-        const out = [];
+        // const out = [];
+        // (res.timestamp || []).forEach((t, i) => {
+        //   if (closes[i] == null) return;
+        //   out.push({ d: new Date((t + off) * 1000).toISOString().slice(0, 10), p: closes[i] });
+        // });
+        const byDate = new Map(); // a later bar wins if Yahoo returns the same date twice
         (res.timestamp || []).forEach((t, i) => {
           if (closes[i] == null) return;
-          out.push({ d: new Date((t + off) * 1000).toISOString().slice(0, 10), p: closes[i] });
+          byDate.set(new Date((t + off) * 1000).toISOString().slice(0, 10), closes[i]);
         });
+        // Use Yahoo's live quote as the latest price, independent of the bar array
+        const m = res.meta;
+        if (m.regularMarketPrice != null && m.regularMarketTime) {
+          const ld = new Date((m.regularMarketTime + off) * 1000).toISOString().slice(0, 10);
+          const lastD = [...byDate.keys()].sort().pop();
+          if (!lastD || ld >= lastD) byDate.set(ld, m.regularMarketPrice);
+        }
+        const out = [...byDate].map(([d, p]) => ({ d, p })).sort((a, b) => (a.d < b.d ? -1 : 1));
         if (!out.length) throw new Error("No prices returned");
         return out;
       } catch (e) { lastErr = e; }
