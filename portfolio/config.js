@@ -43,6 +43,23 @@ window.PORTFOLIO_CONFIG = {
         { symbol: "KO",  side: "long", startPrice: 94.08, weight: 1 },
         { symbol: "LLY", side: "long", startPrice: 1417.54, weight: 1 }
       ]
+    },
+    {
+      name: "中概十雄",
+      note: "Long the 10 Goats",
+      startDate: "2026-11-10",
+      legs: [
+        { symbol: "600519.SS",  side: "long", startPrice: 1439, weight: 1 },
+        { symbol: "1398.HK", side: "long", startPrice: 7.990, weight: 1 },
+        { symbol: "1288.HK", side: "long", startPrice: 6.995, weight: 1 },
+        { symbol: "0939.HK", side: "long", startPrice: 10.64, weight: 1 },
+        { symbol: "3988.HK", side: "long", startPrice: 6.255, weight: 1 },
+        { symbol: "3968.HK", side: "long", startPrice: 54.5, weight: 1 },
+        { symbol: "0883.HK", side: "long", startPrice: 22.76, weight: 1 },
+        { symbol: "0700.HK", side: "long", startPrice: 417.8, weight: 1 },
+        { symbol: "PDD",     side: "long", startPrice: 80.5, weight: 1 },
+        { symbol: "NTES",    side: "long", startPrice: 129.65, weight: 1 },
+      ]
     }
   ]
 };
