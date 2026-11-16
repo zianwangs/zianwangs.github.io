@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>S&amp;P 500 entry-month CAGR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fff; --fg: #000; --muted: #666; --rule: #e6e6e6;
+    --font: "Instrument Sans", -apple-system, "Helvetica Neue", Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { background: var(--bg); }
+  body {
+    margin: 0; padding: 56px 24px 80px; background: var(--bg); color: var(--fg);
+    font-family: var(--font); font-size: 15px; line-height: 1.5; font-variant-numeric: tabular-nums;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; }
+  button, input, select { font: inherit; color: inherit; }
+  :focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
+
+  h1 { margin: 0; font-size: 28px; font-weight: 600; letter-spacing: -0.02em; }
+  h2 { margin: 48px 0 4px; font-size: 20px; font-weight: 600; letter-spacing: -0.01em; }
+  .lede { margin: 8px 0 0; max-width: 62ch; color: var(--muted); }
+  .note { margin: 0; max-width: 80ch; font-size: 13px; color: var(--muted); }
+  #bar { height: 2px; background: var(--rule); margin-top: 20px; }
+  #bar i { display: block; height: 100%; width: 0; background: var(--fg); transition: width .3s; }
+  .status { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin: 10px 0 0; min-height: 30px; font-size: 13px; color: var(--muted); }
+
+  .btn { height: 30px; padding: 0 12px; border: 1px solid var(--fg); background: var(--bg); color: var(--fg); font-size: 13px; cursor: pointer; }
+  .btn:hover { background: var(--fg); color: var(--bg); }
+  .link { background: none; border: 0; padding: 0; text-decoration: underline; cursor: pointer; font-size: 13px; }
+
+  .controls { display: flex; flex-wrap: wrap; gap: 16px 24px; align-items: flex-end; margin: 24px 0 20px; }
+  .controls.tight { margin: 16px 0 12px; }
+  .field { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--muted); }
+  .field.grow { flex: 1 1 220px; }
+  input[type=search], input[type=number], select {
+    height: 36px; padding: 0 10px; border: 1px solid var(--fg); border-radius: 0; background: var(--bg);
+    font-size: 14px; color: var(--fg);
+  }
+  input[type=number] { width: 84px; }
+  .seg { display: flex; }
+  .seg button { height: 36px; padding: 0 14px; border: 1px solid var(--fg); background: var(--bg); cursor: pointer; font-size: 14px; }
+  .seg button + button { margin-left: -1px; }
+  .seg button[aria-pressed=true] { background: var(--fg); color: var(--bg); }
+  .check { display: flex; align-items: center; gap: 8px; height: 36px; font-size: 14px; cursor: pointer; }
+  .check input { width: 16px; height: 16px; accent-color: #000; margin: 0; }
+
+  .plot { position: relative; height: 560px; }
+  #cv { width: 100%; height: 100%; display: block; cursor: crosshair; }
+  #tip {
+    position: absolute; pointer-events: none; min-width: 180px; max-width: 260px; padding: 8px 10px;
+    background: var(--bg); border: 1px solid var(--fg); font-size: 12.5px; line-height: 1.4; z-index: 2;
+  }
+  #tip .r { display: flex; justify-content: space-between; gap: 14px; margin-top: 4px; }
+  #tip .r b { font-weight: 600; }
+  #tip .m { color: var(--muted); font-size: 11.5px; }
+
+  .pins { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0 0; min-height: 32px; align-items: center; }
+  .chip { display: inline-flex; gap: 8px; align-items: center; height: 28px; padding: 0 10px; font-size: 13px; font-weight: 500;
+    border: 1px solid var(--fg); background: var(--fg); color: var(--bg); cursor: pointer; }
+
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 28px 24px; margin-top: 20px; }
+  .card { border-top: 1px solid var(--fg); padding-top: 12px; min-width: 0; }
+  .card .t { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+  .card .t b { font-size: 17px; font-weight: 600; }
+  .card .t span { min-width: 0; color: var(--muted); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .card canvas { width: 100%; height: 150px; display: block; margin: 8px 0 10px; }
+  .kv { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px 12px; font-size: 12px; color: var(--muted); }
+  .kv b { display: block; color: var(--fg); font-size: 16px; font-weight: 500; }
+  .card .note { margin-top: 10px; font-size: 12px; }
+  .card .rk { margin: 2px 0 0; font-size: 13px; color: var(--muted); }
+  .card .rk b { color: var(--fg); font-size: 15px; font-weight: 600; }
+
+  .scroll { overflow-x: auto; margin-top: 16px; }
+  table { width: 100%; min-width: 1000px; border-collapse: collapse; table-layout: fixed; font-size: 13px; }
+  th, td { padding: 9px 10px 9px 0; border-bottom: 1px solid var(--rule); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  th { font-weight: 500; color: var(--muted); border-bottom-color: var(--fg); cursor: pointer; user-select: none; white-space: normal; vertical-align: bottom; line-height: 1.25; }
+  th[aria-sort] { color: var(--fg); }
+  th[aria-sort=ascending]::after { content: " ↑"; }
+  th[aria-sort=descending]::after { content: " ↓"; }
+  th.mk { cursor: default; }
+  .l { text-align: left; }
+  .r { text-align: right; }
+  td.mk { padding-right: 0; }
+  td.mk i { display: block; width: 8px; height: 8px; background: transparent; }
+  tr.pinned td.mk i { background: var(--fg); }
+  td.sym { font-weight: 600; }
+  td.dim { color: var(--muted); }
+  tbody tr { cursor: pointer; }
+  tbody tr:hover { background: #f5f5f5; }
+  tbody tr.pinned td { font-weight: 600; }
+  tbody tr.empty { cursor: default; }
+  tbody tr.empty:hover { background: none; }
+  tbody tr.empty td { white-space: normal; color: var(--muted); padding: 20px 0; }
+  #more { margin-top: 12px; }
+  footer { margin-top: 48px; max-width: 80ch; font-size: 12px; color: var(--muted); }
+  footer p { margin: 0 0 8px; }
+
+  @media (max-width: 640px) {
+    body { padding: 32px 16px 56px; }
+    .plot { height: 420px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>S&amp;P 500 entry-month CAGR</h1>
+    <p class="lede">Buy a current S&amp;P 500 stock at any month-end and hold it to today. Each line is one stock: the horizontal axis is the years you held, the vertical axis is the annualised return.</p>
+    <div id="bar" aria-hidden="true"><i></i></div>
+    <div id="status" class="status" aria-live="polite">Loading the S&amp;P 500 list…</div>
+  </header>
+
+  <div class="controls">
+    <label class="field grow">Find a stock
+      <input id="q" type="search" placeholder="Ticker or company, Enter to pin" autocomplete="off" spellcheck="false">
+    </label>
+    <label class="field grow">Compare any ticker
+      <input id="ext" type="search" placeholder="Yahoo ticker, e.g. 7203.T, ASML, 0700.HK, Enter" autocomplete="off" spellcheck="false">
+    </label>
+    <div class="field">Return basis
+      <div class="seg" id="mode">
+        <button type="button" data-v="c" aria-pressed="false">Price</button>
+        <button type="button" data-v="a" aria-pressed="true">With dividends</button>
+      </div>
+    </div>
+    <label class="field">Shortest hold
+      <select id="miny">
+        <option value="1" selected>1 year</option>
+        <option value="2">2 years</option>
+        <option value="3">3 years</option>
+        <option value="5">5 years</option>
+        <option value="10">10 years</option>
+      </select>
+    </label>
+    <label class="field">Vertical range
+      <select id="yr">
+        <option value="a" selected>−20% to +40%</option>
+        <option value="b">−50% to +100%</option>
+        <option value="auto">Fit the data</option>
+      </select>
+    </label>
+    <label class="check"><input type="checkbox" id="band" checked> Median and middle half</label>
+  </div>
+  <p id="extmsg" class="note" aria-live="polite"></p>
+  <div class="plot" id="plot">
+    <canvas id="cv" role="img" aria-label="CAGR by years held for each S&amp;P 500 stock"></canvas>
+    <div id="tip" hidden></div>
+  </div>
+  <div id="pins" class="pins"></div>
+
+  <section id="dist" hidden>
+    <h2>Distribution of entry-month CAGR</h2>
+    <p class="note">Each bar is the share of entry months with that CAGR. The black curve is the normal distribution with the same mean μ and standard deviation σ, and the dashed line marks μ. All stocks share one scale so the shapes are comparable.</p>
+    <div id="cards" class="cards"></div>
+  </section>
+
+  <h2>Ranking</h2>
+  <div class="controls tight">
+    <div class="field">Rank by
+      <div class="seg" id="rankby">
+        <button type="button" data-v="score" aria-pressed="true">LB</button>
+        <button type="button" data-v="sharpe" aria-pressed="false">Score</button>
+        <button type="button" data-v="sum" aria-pressed="false">Agg</button>
+      </div>
+    </div>
+    <label class="field" title="Score = μ − k·σ">Score penalty k
+      <input id="k" type="number" min="0" max="3" step="0.5" value="1">
+    </label>
+    <label class="field" title="Used in (μ − rf) ÷ σ. Starts at 6.8% for price and 10.3% with dividends.">Hurdle rf, %
+      <input id="rf" type="number" min="0" max="30" step="0.1" value="10.3">
+    </label>
+    <label class="field" title="Only list and rank stocks whose first month of Yahoo data is in this year or earlier. Leave empty for all.">First month by year
+      <input id="cut" type="number" min="1962" max="2100" step="1" placeholder="any" value="">
+    </label>
+  </div>
+  <p id="tnote" class="note"></p>
+  <div class="scroll"><table id="tbl"></table></div>
+  <button type="button" id="more" class="link" hidden></button>
+
+  <footer>
+    <p>Entry is the close of the chosen month, exit is the latest price. CAGR = (latest ÷ entry)<sup>1 ÷ years held</sup> − 1. “With dividends” uses Yahoo’s adjusted close.</p>
+    <p>μ and σ are the mean and standard deviation of one stock’s entry-month CAGRs. Entry months overlap and every window ends today, so these are not independent samples. Read μ and σ as a description of how buying at different times would have worked out, not as a precise estimate of a true distribution.</p>
+    <p>Only today’s constituents are included, so companies that were removed or went bankrupt are missing. Long holds look better here than they did in real time. Prices are Yahoo Finance monthly bars; the stock list comes from the datasets/s-and-p-500-companies repository, with Wikipedia as backup.</p>
+  </footer>
+</div>
+
+<script>
+(() => {
+  /* ---------------- config ---------------- */
+  const CONFIG = {
+    // Your Cloudflare Worker, e.g. "https://your-worker.workers.dev/?url=". Leave "" to try Yahoo directly (usually blocked by CORS).
+    proxy: "https://eumathes.yaphters.workers.dev/?url=",
+    constituentsUrl: "https://raw.githubusercontent.com/datasets/s-and-p-500-companies/main/data/constituents.csv",
+    wikiUrl: "https://en.wikipedia.org/w/api.php?action=parse&page=List_of_S%26P_500_companies&prop=text&format=json&origin=*",
+    minConstituents: 400,
+    concurrency: 6,          // parallel Yahoo requests
+    minStocksForMedian: 20,  // hide median and band where fewer stocks have data
+    cacheHours: 12,          // how long monthly prices stay in the browser (IndexedDB)
+    minEntries: 60          // entry months a stock needs before it gets a score (about 5 years)
+  };
+
+  /* ---------------- helpers ---------------- */
+  const FONT = '"Instrument Sans", -apple-system, "Helvetica Neue", Arial, sans-serif';
+  const $ = s => document.querySelector(s);
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const MINUS = "\u2212";
+  const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const pct = (v, d = 1) => (v == null || v !== v) ? "–" : (v >= 0 ? "+" : MINUS) + Math.abs(v * 100).toFixed(d) + "%";
+  const pc = (v, d = 1) => (v == null || v !== v) ? "–" : (v * 100).toFixed(d) + "%";
+  const price = p => p == null ? "–" : (p < 1 ? p.toFixed(3) : p.toFixed(2));
+  const monthLabel = m => MONTHS[m % 12] + " " + Math.floor(m / 12);
+
+  const NOW = new Date();
+  const NOW_MS = NOW.getTime();
+  const NOW_M = NOW.getUTCFullYear() * 12 + NOW.getUTCMonth();
+  const YEAR_MS = 365.2425 * 864e5;
+  // YEARS[j] = years from the end of the month j months ago until now
+  const YEARS = Array.from({ length: 1600 }, (_, j) => {
+    if (!j) return 0;
+    const m = NOW_M - j;
+    return (NOW_MS - Date.UTC(Math.floor(m / 12), m % 12 + 1, 1)) / YEAR_MS;
+  });
+  const jMinFor = my => { let j = 1; while (j < YEARS.length - 1 && YEARS[j] < my) j++; return j; };
+
+  /* ---------------- cache ---------------- */
+  const idb = (() => {
+    let dbp;
+    const open = () => dbp || (dbp = new Promise((res, rej) => {
+      const r = indexedDB.open("sp500cagr", 1);
+      r.onupgradeneeded = () => r.result.createObjectStore("p");
+      r.onsuccess = () => res(r.result);
+      r.onerror = () => rej(r.error);
+    }));
+    const tx = async (mode, fn) => {
+      const db = await open();
+      return new Promise((res, rej) => {
+        const t = db.transaction("p", mode);
+        const req = fn(t.objectStore("p"));
+        t.oncomplete = () => res(req.result);
+        t.onerror = () => rej(t.error);
+      });
+    };
+    return {
+      get: k => tx("readonly", s => s.get(k)).catch(() => undefined),
+      set: (k, v) => tx("readwrite", s => s.put(v, k)).catch(() => {})
+    };
+  })();
+
+  const ck = sym => "v2|" + sym;
+
+  /* ---------------- data ---------------- */
+  function parseCSV(t) {
+    const rows = []; let row = [], cur = "", q = false;
+    for (let i = 0; i < t.length; i++) {
+      const ch = t[i];
+      if (q) {
+        if (ch === '"') { if (t[i + 1] === '"') { cur += '"'; i++; } else q = false; } else cur += ch;
+      } else if (ch === '"') q = true;
+      else if (ch === ",") { row.push(cur); cur = ""; }
+      else if (ch === "\n" || ch === "\r") {
+        if (ch === "\r" && t[i + 1] === "\n") i++;
+        row.push(cur); cur = "";
+        if (row.length > 1 || row[0] !== "") rows.push(row);
+        row = [];
+      } else cur += ch;
+    }
+    if (cur !== "" || row.length) { row.push(cur); rows.push(row); }
+    return rows;
+  }
+
+  async function loadConstituents() {
+    try {
+      const r = await fetch(CONFIG.constituentsUrl);
+      if (!r.ok) throw new Error("csv");
+      const rows = parseCSV(await r.text());
+      const h = rows[0].map(x => x.trim().toLowerCase());
+      const iS = h.indexOf("symbol");
+      const iN = h.findIndex(x => x === "security" || x === "name");
+      const iG = h.findIndex(x => x === "gics sector" || x === "sector");
+      const list = rows.slice(1).filter(r => r[iS]).map(r => ({
+        sym: r[iS].trim(), name: (r[iN] || "").trim(), sector: (r[iG] || "").trim()
+      }));
+      if (list.length < CONFIG.minConstituents) throw new Error("short list");
+      return list;
+    } catch (e) {
+      const r = await fetch(CONFIG.wikiUrl);
+      const j = await r.json();
+      const doc = new DOMParser().parseFromString(j.parse.text["*"], "text/html");
+      const rows = [...doc.querySelectorAll("table#constituents tbody tr")].slice(1);
+      return rows.map(tr => {
+        const td = tr.querySelectorAll("td");
+        return { sym: td[0].textContent.trim(), name: td[1].textContent.trim(), sector: td[2].textContent.trim() };
+      }).filter(x => x.sym);
+    }
+  }
+
+  function parseChart(res) {
+    const off = res.meta.gmtoffset || 0;
+    const ts = res.timestamp || [];
+    const cl = res.indicators.quote[0].close || [];
+    const ad = (res.indicators.adjclose && res.indicators.adjclose[0] && res.indicators.adjclose[0].adjclose) || cl;
+    const rows = new Map(); // month index -> [close, adjclose]; a later bar in the same month wins
+    ts.forEach((t, i) => {
+      if (cl[i] == null) return;
+      const d = new Date((t + off) * 1000);
+      rows.set(d.getUTCFullYear() * 12 + d.getUTCMonth(), [cl[i], ad[i] != null ? ad[i] : cl[i]]);
+    });
+    if (!rows.size) throw new Error("no prices");
+    const ks = [...rows.keys()];
+    const m0 = Math.min(...ks), m1 = Math.max(...ks);
+    const c = [], a = [];
+    for (let m = m0; m <= m1; m++) {
+      const r = rows.get(m);
+      c.push(r ? +r[0].toFixed(4) : null);
+      a.push(r ? +r[1].toFixed(4) : null);
+    }
+    return { m0, c, a, bars: rows.size, coarse: rows.size < 0.8 * (m1 - m0 + 1), g: res.meta.dataGranularity || "", name: res.meta.longName || res.meta.shortName || "", cur: res.meta.currency || "" };
+  }
+
+  async function fetchOnce(sym, query, raw) {
+    const ySym = raw ? sym : sym.replace(/\./g, "-"); // BRK.B -> BRK-B, but keep suffixes like 7203.T for outside tickers
+    const url = "https://query1.finance.yahoo.com/v8/finance/chart/" + encodeURIComponent(ySym) + "?" + query;
+    const full = CONFIG.proxy ? CONFIG.proxy + encodeURIComponent(url) : url;
+    let err;
+    for (let a = 0; a < 4; a++) {
+      const ctl = new AbortController();
+      const to = setTimeout(() => ctl.abort(), 20000);
+      try {
+        const r = await fetch(full, { signal: ctl.signal });
+        if (!r.ok) throw new Error(r.status === 429 ? "rate limited" : "HTTP " + r.status);
+        const j = await r.json();
+        const res = j.chart && j.chart.result && j.chart.result[0];
+        if (!res) throw new Error((j.chart && j.chart.error && j.chart.error.description) || "no data");
+        return parseChart(res);
+      } catch (e) { err = e; await sleep(700 * (a + 1)); }
+      finally { clearTimeout(to); }
+    }
+    throw err;
+  }
+
+  // range=max can come back with only every third month for long histories. If so, ask again with explicit dates.
+  async function fetchMonthly(sym, raw) {
+    let d = await fetchOnce(sym, "interval=1mo&range=max", raw);
+    if (d.coarse) {
+      try {
+        const d2 = await fetchOnce(sym, "interval=1mo&period1=-631159200&period2=" + (Math.floor(Date.now() / 1000) + 86400), raw);
+        if (d2.bars > d.bars) d = d2;
+      } catch (e) { /* keep the first result */ }
+    }
+    return d;
+  }
+
+  /* ---------------- state ---------------- */
+  const S = {
+    stocks: [], mode: "a", minYears: 1, yr: "a", band: true, k: 1, rf: { c: 6.8, a: 10.3 }, rankBy: "score", cut: null, pins: [], hover: null,
+    sortKey: "score", sortDir: -1, q: "", showAll: false, loading: false, done: 0, total: 0
+  };
+  let bySym = new Map();
+  let band = { q: [] };
+  let HC = null, hSig = "";
+  const D = { xmin: 1, xmax: 10, ymin: -0.2, ymax: 0.4, jmin: 1, jmax: 0 };
+
+  function computeStock(s) {
+    const arr = s[S.mode];
+    let pn = null;
+    for (let i = arr.length - 1; i >= 0; i--) if (arr[i] != null) { pn = arr[i]; break; }
+    const J = NOW_M - s.m0;
+    const out = new Float32Array(J + 1).fill(NaN);
+    for (let i = 0; i < arr.length; i++) {
+      const p = arr[i];
+      if (p == null || p <= 0) continue;
+      const j = NOW_M - (s.m0 + i);
+      if (j < 1) continue;
+      const v = Math.pow(pn / p, 1 / YEARS[j]) - 1;
+      out[j] = isFinite(v) ? v : NaN;
+    }
+    s.cagr = out; s.j0 = J; s.pn = pn;
+  }
+
+  function applyData(s, d) {
+    if (d.m0 + d.c.length - 1 < NOW_M - 1) throw new Error("stale data");
+    s.m0 = d.m0; s.c = d.c; s.a = d.a; s.bars = d.bars; s.coarse = d.coarse;
+    computeStock(s);
+  }
+
+  async function loadStock(s) {
+    const hit = await idb.get(ck(s.sym));
+    let d;
+    if (hit && Date.now() - hit.t < CONFIG.cacheHours * 36e5) d = hit.d;
+    else { d = await fetchMonthly(s.sym); idb.set(ck(s.sym), { t: Date.now(), d }); }
+    applyData(s, d);
+  }
+
+  // Fill from the browser cache only, no network
+  async function hydrate() {
+    await Promise.all(S.stocks.map(async s => {
+      if (s.cagr || s.queued) return;
+      const hit = await idb.get(ck(s.sym));
+      if (hit && Date.now() - hit.t < CONFIG.cacheHours * 36e5) { try { applyData(s, hit.d); } catch (e) {} }
+    }));
+    flush();
+  }
+
+  /* ---- request queue: single stocks on demand, or everything on a button ---- */
+  const pool = { active: 0, queue: [] };
+
+  function pump() {
+    while (pool.active < CONFIG.concurrency && pool.queue.length) {
+      const s = pool.queue.shift();
+      pool.active++;
+      (async () => {
+        try { await loadStock(s); } catch (e) { s.err = (e && e.message) || "failed"; }
+        s.queued = false; S.done++; schedule();
+        await sleep(30 + Math.random() * 60);
+        pool.active--;
+        if (!pool.active && !pool.queue.length) { S.loading = false; flush(); } else pump();
+      })();
+    }
+  }
+
+  function request(s, front) {
+    if (!s || s.cagr || s.queued) return;
+    if (!S.loading) { S.loading = true; S.done = 0; S.total = 0; }
+    s.queued = true; s.err = null; S.total++;
+    if (front) pool.queue.unshift(s); else pool.queue.push(s);
+    pump(); schedule();
+  }
+
+  function loadAll() { S.stocks.forEach(s => request(s, false)); }
+
+  function stopLoading() {
+    pool.queue.forEach(s => { s.queued = false; });
+    S.total -= pool.queue.length; pool.queue.length = 0;
+    if (!pool.active) S.loading = false;
+    flush();
+  }
+
+  /* ---------------- statistics ---------------- */
+  function getStats(s) {
+    const key = S.mode + "|" + S.minYears;
+    if (s.stKey === key && s.st) return s.st;
+    const a = s.cagr, x = [];
+    for (let j = jMinFor(S.minYears); j < a.length; j++) if (a[j] === a[j]) x.push(a[j]);
+    const n = x.length;
+    let st = { n, mean: NaN, sd: NaN, med: NaN, p1: NaN, p10: NaN, p90: NaN, p99: NaN, skew: NaN, x };
+    if (n >= 2) {
+      let mean = 0; for (const v of x) mean += v; mean /= n;
+      let m2 = 0, m3 = 0;
+      for (const v of x) { const d = v - mean; m2 += d * d; m3 += d * d * d; }
+      const sd = Math.sqrt(m2 / (n - 1));
+      const sorted = x.slice().sort((p, q) => p - q);
+      const at = f => sorted[Math.min(n - 1, Math.floor(f * (n - 1) + 0.5))];
+      st = { n, mean, sd, med: at(0.5), p1: at(0.01), p10: at(0.1), p90: at(0.9), p99: at(0.99),
+             skew: m2 > 0 ? (m3 / n) / Math.pow(m2 / n, 1.5) : 0, x };
+    }
+    s.stKey = key; s.st = st;
+    return st;
+  }
+  const score = s => { const st = getStats(s); return st.n >= CONFIG.minEntries ? st.mean - S.k * st.sd : NaN; };
+  const inCut = s => S.cut == null || s.m0 < (S.cut + 1) * 12; // first month is in the cutoff year or earlier
+  const rfNow = () => S.rf[S.mode] / 100;
+  const sharpe = s => { const st = getStats(s); return (st.n >= CONFIG.minEntries && st.sd > 0) ? (st.mean - rfNow()) / st.sd : NaN; };
+  const measure = s => S.rankBy === "sharpe" ? sharpe(s) : score(s);
+  const sh = v => (v == null || v !== v) ? "–" : v.toFixed(2);
+  const sinceCagr = s => (!s.cagr || s.j0 < 1 || YEARS[s.j0] < S.minYears) ? NaN : s.cagr[s.j0];
+
+  let RK = { key: "" };
+  function ranks() {
+    const key = [S.mode, S.minYears, S.k, S.rf[S.mode], S.rankBy, S.cut, S.stocks.reduce((n, s) => n + (s.cagr ? 1 : 0), 0)].join("|");
+    if (RK.key === key) return RK;
+    const pool = [];
+    for (const s of S.stocks) {
+      if (!s.cagr || !inCut(s)) continue;
+      const sc = score(s), sp = sharpe(s);
+      if (sc === sc && sp === sp) pool.push({ s, sc, sp });
+    }
+    RK = { key, n: pool.length, pool, ...rankPool(pool) };
+    return RK;
+  }
+
+  // an outside stock as if it were in the index
+  function wouldBe(s) {
+    const R = ranks(), sc = score(s), sp = sharpe(s);
+    if (sc !== sc || sp !== sp) return { n: R.n, rs: new Map(), rp: new Map(), sum: new Map(), sel: new Map() };
+    const pool = R.pool.concat([{ s, sc, sp }]);
+    return { n: pool.length, ...rankPool(pool) };
+  }
+
+  // share of index stocks the outside stock beats on each measure
+  function vsIndex(s) {
+    const P = ranks().pool, st = getStats(s), sc = score(s), sp = sharpe(s);
+    if (!P.length || sc !== sc || sp !== sp) return null;
+    const share = (get, v, lowerIsBetter) => P.filter(x => lowerIsBetter ? get(x) > v : get(x) < v).length / P.length;
+    return {
+      n: P.length,
+      mu: share(x => getStats(x.s).mean, st.mean),
+      sd: share(x => getStats(x.s).sd, st.sd, true),
+      score: share(x => x.sc, sc),
+      sharpe: share(x => x.sp, sp)
+    };
+  }
+  // ranks for any pool of { s, sc, sp } entries (also used for an outside stock)
+  function rankPool(pool) {
+    const rankOf = f => {
+      const m = new Map();
+      pool.slice().sort((a, b) => f(b) - f(a)).forEach((x, i) => m.set(x.s.sym, i + 1));
+      return m;
+    };
+    const rs = rankOf(x => x.sc), rp = rankOf(x => x.sp);
+    const sum = new Map(pool.map(x => [x.s.sym, rs.get(x.s.sym) + rp.get(x.s.sym)]));
+    let sel;
+    if (S.rankBy === "score") sel = rs;
+    else if (S.rankBy === "sharpe") sel = rp;
+    else {
+      sel = new Map();
+      pool.slice().sort((a, b) => (sum.get(a.s.sym) - sum.get(b.s.sym)) || (rs.get(a.s.sym) - rs.get(b.s.sym)))
+        .forEach((x, i) => sel.set(x.s.sym, i + 1));
+    }
+    return { rs, rp, sum, sel };
+  }
+
+  /* ---------------- main chart ---------------- */
+  const cv = $("#cv"), off = document.createElement("canvas"), tip = $("#tip");
+  let W = 0, H = 0, DPR = 1;
+  const box = { L: 58, R: 62, T: 14, B: 46 };
+  const X = x => box.L + (x - D.xmin) / (D.xmax - D.xmin) * (W - box.L - box.R);
+  const Y = y => box.T + (D.ymax - y) / (D.ymax - D.ymin) * (H - box.T - box.B);
+
+  function niceStep(range, target) {
+    const raw = range / target, p = Math.pow(10, Math.floor(Math.log10(raw))), f = raw / p;
+    return (f < 1.5 ? 1 : f < 3.5 ? 2 : f < 7.5 ? 5 : 10) * p;
+  }
+
+  function computeDomain() {
+    D.jmin = jMinFor(S.minYears);
+    let maxJ = 0;
+    for (const s of S.stocks) if (s.cagr) maxJ = Math.max(maxJ, s.cagr.length - 1);
+    D.jmax = maxJ;
+    D.xmin = YEARS[D.jmin];
+    D.xmax = maxJ > D.jmin ? YEARS[maxJ] : D.xmin + 10;
+    if (S.yr === "a") { D.ymin = -0.2; D.ymax = 0.4; }
+    else if (S.yr === "b") { D.ymin = -0.5; D.ymax = 1; }
+    else {
+      const vals = [];
+      for (const s of S.stocks) if (s.cagr) for (let j = D.jmin; j < s.cagr.length; j++) { const v = s.cagr[j]; if (v === v) vals.push(v); }
+      if (vals.length > 50) {
+        const t = Float32Array.from(vals).sort();
+        const lo = t[Math.floor(t.length * 0.01)], hi = t[Math.floor(t.length * 0.99)];
+        const pad = (hi - lo) * 0.05;
+        D.ymin = Math.min(lo, 0) - pad; D.ymax = Math.max(hi, 0) + pad;
+      } else { D.ymin = -0.2; D.ymax = 0.4; }
+    }
+    // pinned lines must stay visible: widen the range if they run outside it
+    const pv = [];
+    for (const sym of S.pins) {
+      const s = bySym.get(sym);
+      if (s && s.cagr) for (let j = D.jmin; j < s.cagr.length; j++) { const v = s.cagr[j]; if (v === v) pv.push(v); }
+    }
+    if (pv.length > 1) {
+      pv.sort((a, b) => a - b);
+      const lo = pv[Math.floor(0.01 * (pv.length - 1))], hi = pv[Math.ceil(0.99 * (pv.length - 1))];
+      const pad = (hi - lo) * 0.06 || 0.02;
+      D.ymin = Math.min(D.ymin, lo - pad); D.ymax = Math.max(D.ymax, hi + pad);
+    }
+  }
+
+  function computeBand() {
+    band = { q: [] };
+    const loaded = S.stocks.filter(s => s.cagr);
+    if (loaded.length < CONFIG.minStocksForMedian) return;
+    for (let j = D.jmin; j <= D.jmax; j++) {
+      const v = [];
+      for (const s of loaded) if (j < s.cagr.length) { const x = s.cagr[j]; if (x === x) v.push(x); }
+      if (v.length < CONFIG.minStocksForMedian) continue;
+      v.sort((a, b) => a - b);
+      const at = f => v[Math.min(v.length - 1, Math.floor(f * (v.length - 1) + 0.5))];
+      band.q[j] = [at(0.25), at(0.5), at(0.75), v.length];
+    }
+  }
+
+  function trace(c, s) {
+    const a = s.cagr; let pen = false;
+    c.beginPath();
+    for (let j = D.jmin; j < a.length; j++) {
+      const v = a[j];
+      if (v !== v) continue; // missing month: join the neighbours instead of breaking the line
+      const x = X(YEARS[j]), y = Math.max(-5e4, Math.min(5e4, Y(v)));
+      if (pen) c.lineTo(x, y); else { c.moveTo(x, y); pen = true; }
+    }
+  }
+
+  function clipPlot(c) {
+    c.beginPath(); c.rect(box.L, box.T, W - box.L - box.R, H - box.T - box.B); c.clip();
+  }
+
+  function drawBase() {
+    const c = off.getContext("2d");
+    c.setTransform(DPR, 0, 0, DPR, 0, 0);
+    c.fillStyle = "#fff"; c.fillRect(0, 0, W, H);
+    c.font = "12px " + FONT; c.textBaseline = "middle";
+    const pw = W - box.L - box.R, ph = H - box.T - box.B;
+
+    const ys = niceStep(D.ymax - D.ymin, 6);
+    c.textAlign = "right";
+    for (let k = Math.ceil(D.ymin / ys); k * ys <= D.ymax + 1e-9; k++) {
+      const v = k * ys, y = Math.round(Y(v)) + 0.5;
+      c.strokeStyle = k === 0 ? "#000" : "#ececec"; c.lineWidth = 1;
+      c.beginPath(); c.moveTo(box.L, y); c.lineTo(W - box.R, y); c.stroke();
+      c.fillStyle = "#000"; c.fillText(Math.round(v * 100) + "%", box.L - 8, y);
+    }
+    const xs = Math.max(1, niceStep(D.xmax - D.xmin, 8));
+    c.textAlign = "center";
+    for (let k = Math.ceil(D.xmin / xs); k * xs <= D.xmax + 1e-9; k++) {
+      const v = k * xs, x = Math.round(X(v)) + 0.5;
+      c.strokeStyle = "#f2f2f2";
+      c.beginPath(); c.moveTo(x, box.T); c.lineTo(x, H - box.B); c.stroke();
+      c.fillStyle = "#000"; c.fillText(String(v), x, H - box.B + 16);
+    }
+    c.strokeStyle = "#000";
+    c.beginPath(); c.moveTo(box.L, H - box.B + 0.5); c.lineTo(W - box.R, H - box.B + 0.5); c.stroke();
+    c.fillStyle = "#666"; c.textAlign = "center";
+    c.fillText("Years held until today", box.L + pw / 2, H - 10);
+    c.save(); c.translate(14, box.T + ph / 2); c.rotate(-Math.PI / 2);
+    c.fillText("Annualised return (CAGR)", 0, 0); c.restore();
+
+    c.save(); clipPlot(c);
+    if (S.band) {
+      const js = []; band.q.forEach((_, j) => js.push(j));
+      if (js.length > 1) {
+        c.fillStyle = "rgba(0,0,0,0.08)";
+        c.beginPath();
+        js.forEach((j, i) => { const x = X(YEARS[j]), y = Y(band.q[j][2]); i ? c.lineTo(x, y) : c.moveTo(x, y); });
+        for (let i = js.length - 1; i >= 0; i--) c.lineTo(X(YEARS[js[i]]), Y(band.q[js[i]][0]));
+        c.closePath(); c.fill();
+      }
+    }
+    c.lineWidth = 0.8;
+    c.strokeStyle = S.pins.length ? "rgba(0,0,0,0.07)" : "rgba(0,0,0,0.12)";
+    for (const s of S.stocks) if (s.cagr) { trace(c, s); c.stroke(); }
+    if (S.band) {
+      c.strokeStyle = "#000"; c.lineWidth = 1.6; c.setLineDash([6, 4]);
+      c.beginPath(); let pen = false;
+      band.q.forEach((q, j) => { const x = X(YEARS[j]), y = Y(q[1]); pen ? c.lineTo(x, y) : c.moveTo(x, y); pen = true; });
+      c.stroke(); c.setLineDash([]);
+    }
+    c.restore();
+  }
+
+  function drawOverlay() {
+    if (!W) return;
+    const c = cv.getContext("2d");
+    c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, cv.width, cv.height); c.drawImage(off, 0, 0);
+    c.setTransform(DPR, 0, 0, DPR, 0, 0);
+    c.save(); clipPlot(c);
+    c.lineJoin = "round";
+    for (const sym of S.pins) {
+      const s = bySym.get(sym);
+      if (!s || !s.cagr) continue;
+      trace(c, s); c.strokeStyle = "#000"; c.lineWidth = 1.8; c.stroke();
+    }
+    const h = S.hover;
+    if (h) {
+      const x = Math.round(X(YEARS[h.j])) + 0.5;
+      c.strokeStyle = "rgba(0,0,0,0.35)"; c.lineWidth = 1; c.setLineDash([3, 3]);
+      c.beginPath(); c.moveTo(x, box.T); c.lineTo(x, H - box.B); c.stroke(); c.setLineDash([]);
+      if (h.s) {
+        trace(c, h.s); c.strokeStyle = "#000"; c.lineWidth = 2.6; c.stroke();
+        c.beginPath(); c.arc(X(YEARS[h.jj]), Y(h.s.cagr[h.jj]), 4, 0, Math.PI * 2);
+        c.fillStyle = "#fff"; c.fill(); c.lineWidth = 2; c.stroke();
+      }
+    }
+    c.restore();
+    c.font = "600 12px " + FONT; c.textAlign = "left"; c.textBaseline = "middle"; c.lineJoin = "round";
+    for (const sym of S.pins) {
+      const s = bySym.get(sym);
+      if (!s || !s.cagr) continue;
+      let j = s.cagr.length - 1;
+      while (j >= D.jmin && s.cagr[j] !== s.cagr[j]) j--;
+      if (j < D.jmin) continue;
+      const x = X(YEARS[j]) + 6, y = Math.min(Math.max(Y(s.cagr[j]), box.T + 6), H - box.B - 6);
+      c.lineWidth = 3; c.strokeStyle = "#fff"; c.strokeText(sym, x, y);
+      c.fillStyle = "#000"; c.fillText(sym, x, y);
+    }
+  }
+
+  function resize() {
+    const r = cv.getBoundingClientRect();
+    DPR = window.devicePixelRatio || 1; W = r.width; H = r.height;
+    for (const c of [cv, off]) { c.width = Math.round(W * DPR); c.height = Math.round(H * DPR); }
+    drawAll(); drawHists();
+  }
+
+  function drawAll() {
+    if (!W) return;
+    computeDomain(); computeBand(); drawBase(); drawOverlay();
+  }
+
+  /* ---------------- hover, tooltip, pins ---------------- */
+  function nearestJ(x) {
+    let lo = D.jmin, hi = Math.max(D.jmax, D.jmin);
+    while (lo < hi) { const mid = (lo + hi) >> 1; if (YEARS[mid] < x) lo = mid + 1; else hi = mid; }
+    if (lo > D.jmin && Math.abs(YEARS[lo - 1] - x) < Math.abs(YEARS[lo] - x)) lo--;
+    return lo;
+  }
+
+  function nearIdx(s, j) {
+    const a = s.cagr, ok = i => i >= D.jmin && i < a.length && a[i] === a[i];
+    if (ok(j)) return j;
+    for (let d = 1; d <= 3; d++) { if (ok(j - d)) return j - d; if (ok(j + d)) return j + d; }
+    return -1;
+  }
+
+  function updateHover(e) {
+    const r = cv.getBoundingClientRect(), mx = e.clientX - r.left, my = e.clientY - r.top;
+    if (mx < box.L || mx > W - box.R || my < box.T || my > H - box.B) return setHover(null);
+    const xv = D.xmin + (mx - box.L) / (W - box.L - box.R) * (D.xmax - D.xmin);
+    const j = nearestJ(xv);
+    let best = null, bj = j, bd = 18;
+    for (const s of S.stocks) {
+      if (!s.cagr) continue;
+      const jj = nearIdx(s, j);
+      if (jj < 0) continue;
+      const d = Math.abs(Y(s.cagr[jj]) - my);
+      if (d < bd) { bd = d; best = s; bj = jj; }
+    }
+    setHover({ s: best, jj: bj, j, mx, my });
+  }
+
+  let raf = 0;
+  function setHover(h) {
+    S.hover = h;
+    if (!raf) raf = requestAnimationFrame(() => { raf = 0; drawOverlay(); renderTip(); });
+  }
+
+  function renderTip() {
+    const h = S.hover;
+    if (!h) { tip.hidden = true; return; }
+    const q = band.q[h.j], list = [];
+    if (h.s) list.push({ s: h.s, jj: h.jj });
+    S.pins.forEach(sym => {
+      const s = bySym.get(sym);
+      if (!s || !s.cagr || list.some(r => r.s === s)) return;
+      const jj = nearIdx(s, h.j);
+      if (jj >= 0) list.push({ s, jj });
+    });
+    if (!list.length && !q) { tip.hidden = true; return; }
+    let html = "Entry " + monthLabel(NOW_M - h.j) + ", held " + YEARS[h.j].toFixed(1) + " years";
+    list.forEach(({ s, jj }) => {
+      const p = s[S.mode][NOW_M - jj - s.m0];
+      html += "<div class='r'><b>" + esc(s.sym) + "</b><span>" + pct(s.cagr[jj]) + "</span></div>" +
+        "<div class='m'>" + (jj !== h.j ? monthLabel(NOW_M - jj) + ": " : "") + price(p) + " to " + price(s.pn) + "</div>";
+    });
+    if (q) html += "<div class='r m'><span>All-stock median</span><span>" + pct(q[1]) + "</span></div>";
+    tip.innerHTML = html; tip.hidden = false;
+    tip.style.left = Math.min(h.mx + 14, W - tip.offsetWidth - 4) + "px";
+    tip.style.top = Math.max(4, Math.min(h.my - tip.offsetHeight - 10, H - tip.offsetHeight - 4)) + "px";
+  }
+
+  function syncHash() {
+    try { history.replaceState(null, "", S.pins.length ? "#" + S.pins.join(",") : location.pathname + location.search); } catch (e) {}
+  }
+
+  function pin(sym) {
+    if (S.pins.includes(sym)) return;
+    S.pins.push(sym); request(bySym.get(sym), true); syncHash();
+  }
+
+  function togglePin(sym) {
+    const i = S.pins.indexOf(sym);
+    if (i >= 0) { S.pins.splice(i, 1); syncHash(); } else pin(sym);
+    renderAll();
+  }
+
+  cv.addEventListener("pointermove", updateHover);
+  cv.addEventListener("pointerleave", () => setHover(null));
+  cv.addEventListener("click", e => { updateHover(e); if (S.hover && S.hover.s) togglePin(S.hover.s.sym); });
+
+  /* ---------------- histograms ---------------- */
+  function renderHists(force) {
+    const sec = $("#dist");
+    sec.hidden = S.pins.length === 0;
+    if (!S.pins.length) { hSig = ""; HC = null; return; }
+    const R = ranks(), loadedN = S.stocks.filter(x => x.cagr).length;
+    const sig = [S.mode, S.minYears, S.k, S.rf[S.mode], S.rankBy, R.key, ...S.pins.map(sym => {
+      const s = bySym.get(sym); return sym + (s && s.cagr ? 1 : s && s.err ? "e" : 0);
+    })].join("|");
+    if (!force && sig === hSig) return;
+    hSig = sig;
+
+    const ready = S.pins.map(sym => bySym.get(sym)).filter(s => s && s.cagr && getStats(s).n >= 2);
+    HC = null;
+    if (ready.length) {
+      let lo = Infinity, hi = -Infinity;
+      ready.forEach(s => { const st = getStats(s); lo = Math.min(lo, st.p1); hi = Math.max(hi, st.p99); });
+      if (!(hi > lo)) hi = lo + 0.1;
+      const bw = niceStep(hi - lo, 18);
+      lo = Math.floor(lo / bw) * bw; hi = Math.ceil(hi / bw) * bw;
+      const nb = Math.max(1, Math.round((hi - lo) / bw));
+      let ymax = 0;
+      const items = ready.map(s => {
+        const st = getStats(s), shares = new Array(nb).fill(0);
+        st.x.forEach(v => { shares[Math.min(nb - 1, Math.max(0, Math.floor((v - lo) / bw)))]++; });
+        for (let b = 0; b < nb; b++) { shares[b] /= st.n; ymax = Math.max(ymax, shares[b]); }
+        if (st.sd > 0) ymax = Math.max(ymax, bw / (st.sd * Math.sqrt(2 * Math.PI)));
+        return { sym: s.sym, st, shares };
+      });
+      HC = { lo, hi, bw, nb, ymax: ymax * 1.08, items };
+    }
+
+    const kv = (label, v) => "<div><b>" + v + "</b>" + label + "</div>";
+    const selLabel = S.rankBy === "sum" ? "Agg" : S.rankBy === "sharpe" ? "Score" : "LB";
+    const rkLine = (sym, RR, ext) => RR.sel.has(sym)
+      ? "<p class='rk'>" + (ext ? "Outside the index. Would rank " : "Rank ") + "<b>#" + RR.sel.get(sym) + "</b> of " + RR.n + " by " + selLabel + (loadedN < S.stocks.length ? ", loaded so far" : "") + "</p>"
+      : "<p class='rk'>Not ranked: " + (!ext && !inCut(bySym.get(sym)) ? "first month is after " + S.cut + "." : "needs " + CONFIG.minEntries + " entry months at this minimum hold.") + "</p>";
+    const vsLine = v => "<p class='rk'>Beats " + Math.round(v.mu * 100) + "% on μ, " +
+      Math.round(v.sd * 100) + "% on σ (tighter), " + Math.round(v.score * 100) + "% on LB, " + Math.round(v.sharpe * 100) + "% on Score</p>";
+    const rkv = (m, sym, hash) => m.has(sym) ? (hash ? "#" : "") + m.get(sym) : "–";
+    $("#cards").innerHTML = S.pins.map(sym => {
+      const s = bySym.get(sym);
+      if (!s) return "";
+      const head = "<div class='t'><b>" + esc(sym) + "</b><span>" + esc(s.name) + "</span></div>";
+      if (!s.cagr) return "<div class='card'>" + head + "<p class='note'>" + (s.err ? "Could not load prices: " + esc(s.err) : "Loading prices…") + "</p></div>";
+      const st = getStats(s);
+      if (st.n < 2) return "<div class='card'>" + head + "<p class='note'>Not enough entry months at this minimum hold.</p></div>";
+      const RR = s.ext ? wouldBe(s) : R, vs = s.ext ? vsIndex(s) : null;
+      return "<div class='card'>" + head + rkLine(sym, RR, s.ext) + (vs ? vsLine(vs) : "") + "<canvas data-sym='" + esc(sym) + "' aria-label='Histogram of " + esc(sym) + " entry-month CAGR'></canvas>" +
+        "<div class='kv'>" + kv("Mean μ", pct(st.mean)) + kv("Std σ", pc(st.sd)) + kv("Median", pct(st.med)) +
+        kv("LB", pct(score(s))) + kv("Score, rf " + S.rf[S.mode] + "%", sh(sharpe(s))) + kv("Skew", st.skew.toFixed(2)) +
+        kv("10th percentile", pct(st.p10)) + kv("90th percentile", pct(st.p90)) + kv("Entry months", st.n) +
+        kv("LB rank", rkv(RR.rs, sym, true)) + kv("Score rank", rkv(RR.rp, sym, true)) + kv("Agg", rkv(RR.sum, sym, false)) + "</div>" +
+        "<p class='note'>First month " + monthLabel(s.m0) + " at " + price(s[S.mode][0]) + ", latest " + price(s.pn) +
+        ". Yahoo returned " + s.bars + " monthly bars" + (s.coarse ? " (sparse, so lines are joined across gaps)" : "") +
+        (st.n < CONFIG.minEntries ? ". Too short to score." : ".") +
+        (s.ext && s.cur ? " Prices are in " + esc(s.cur) + ", so returns are in that currency." : "") + "</p></div>";
+    }).join("");
+    drawHists();
+  }
+
+  function drawHists() {
+    if (!HC) return;
+    document.querySelectorAll("#cards canvas").forEach(cvs => {
+      const it = HC.items.find(i => i.sym === cvs.dataset.sym);
+      if (it) drawHist(cvs, it);
+    });
+  }
+
+  function drawHist(cvs, it) {
+    const r = cvs.getBoundingClientRect(), w = r.width, h = r.height, d = window.devicePixelRatio || 1;
+    cvs.width = Math.round(w * d); cvs.height = Math.round(h * d);
+    const c = cvs.getContext("2d"); c.setTransform(d, 0, 0, d, 0, 0);
+    const L = 6, R = 6, T = 8, B = 22, pw = w - L - R, ph = h - T - B;
+    const x = v => L + (v - HC.lo) / (HC.hi - HC.lo) * pw;
+    const y = v => T + ph - v / HC.ymax * ph;
+    const st = it.st;
+
+    c.fillStyle = "#d4d4d4";
+    it.shares.forEach((sv, b) => {
+      const x0 = x(HC.lo + b * HC.bw), x1 = x(HC.lo + (b + 1) * HC.bw);
+      c.fillRect(x0 + 0.5, y(sv), Math.max(1, x1 - x0 - 1), T + ph - y(sv));
+    });
+    if (HC.lo < 0 && HC.hi > 0) {
+      c.strokeStyle = "#999"; c.lineWidth = 1; c.setLineDash([2, 3]);
+      c.beginPath(); c.moveTo(Math.round(x(0)) + 0.5, T); c.lineTo(Math.round(x(0)) + 0.5, T + ph); c.stroke(); c.setLineDash([]);
+    }
+    if (st.sd > 0) {
+      c.strokeStyle = "#000"; c.lineWidth = 1.6; c.beginPath();
+      for (let i = 0; i <= 120; i++) {
+        const v = HC.lo + (HC.hi - HC.lo) * i / 120;
+        const p = HC.bw * Math.exp(-0.5 * Math.pow((v - st.mean) / st.sd, 2)) / (st.sd * Math.sqrt(2 * Math.PI));
+        i ? c.lineTo(x(v), y(p)) : c.moveTo(x(v), y(p));
+      }
+      c.stroke();
+    }
+    c.strokeStyle = "#000"; c.lineWidth = 1; c.setLineDash([4, 3]);
+    const mx = Math.min(Math.max(x(st.mean), L), L + pw);
+    c.beginPath(); c.moveTo(mx, T); c.lineTo(mx, T + ph); c.stroke(); c.setLineDash([]);
+    c.beginPath(); c.moveTo(L, T + ph + 0.5); c.lineTo(L + pw, T + ph + 0.5); c.stroke();
+
+    c.font = "11px " + FONT; c.fillStyle = "#000"; c.textBaseline = "top"; c.textAlign = "center";
+    const xs = niceStep(HC.hi - HC.lo, 5);
+    for (let k = Math.ceil(HC.lo / xs - 1e-9); k * xs <= HC.hi + 1e-9; k++) {
+      const v = k * xs;
+      c.fillText(Math.round(v * 100) + "%", Math.min(Math.max(x(v), L + 12), L + pw - 12), T + ph + 6);
+    }
+  }
+
+  /* ---------------- table ---------------- */
+  const COLS = [
+    { k: "mk", label: "", cls: "mk", w: 18 },
+    { k: "sym", label: "Ticker", cls: "l", w: 70 },
+    { k: "name", label: "Company", cls: "l" },
+    { k: "sector", label: "Sector", cls: "l", w: 130 },
+    { k: "first", label: "First month", cls: "r", w: 84 },
+    { k: "years", label: "Years", cls: "r", w: 48 },
+    { k: "since", label: "CAGR since first month", cls: "r", w: 100, tip: "CAGR if you bought at the end of the first month of data: the far right end of the stock’s line" },
+    { k: "mu", label: "Mean μ", cls: "r", w: 62, tip: "Mean of the entry-month CAGRs" },
+    { k: "sd", label: "Std σ", cls: "r", w: 56, tip: "Standard deviation of the entry-month CAGRs" },
+    { k: "score", label: "LB", cls: "r", w: 58, tip: "μ − k·σ" },
+    { k: "sharpe", label: "Score", cls: "r", w: 58, tip: "(μ − rf) ÷ σ" },
+    { k: "rsum", label: "Agg", cls: "r", w: 64, tip: "LB rank + Score rank. Lower is better." },
+    { k: "rank", label: "Rank", cls: "r", w: 50, tip: "Rank by the measure chosen above, among the stocks loaded" }
+  ];
+  const ASC = new Set(["sym", "name", "sector", "first", "rank", "rsum"]);
+  const rel = (s, q) => {
+    const sy = s.sym.toLowerCase(), nm = s.name.toLowerCase();
+    return sy === q ? 0 : sy.startsWith(q) ? 1 : nm.startsWith(q) ? 2 : sy.includes(q) ? 3 : 4;
+  };
+  function matches() {
+    const q = S.q.trim().toLowerCase();
+    if (!q) return [];
+    return S.stocks.filter(s => s.sym.toLowerCase().includes(q) || s.name.toLowerCase().includes(q))
+      .sort((a, b) => rel(a, q) - rel(b, q) || a.sym.localeCompare(b.sym));
+  }
+
+  function renderTable() {
+    const q = S.q.trim();
+    const loadedN = S.stocks.filter(s => s.cagr).length;
+    const R = ranks(), rank = R.sel;
+
+    let rows;
+    if (q) rows = matches();
+    else {
+      const val = s => {
+        switch (S.sortKey) {
+          case "sym": return s.sym; case "name": return s.name; case "sector": return s.sector;
+          case "first": return s.m0; case "years": return YEARS[s.j0]; case "since": return sinceCagr(s);
+          case "mu": return getStats(s).mean; case "sd": return getStats(s).sd;
+          case "score": return score(s); case "sharpe": return sharpe(s); case "rsum": return R.sum.has(s.sym) ? R.sum.get(s.sym) : NaN; default: return rank.has(s.sym) ? rank.get(s.sym) : NaN;
+        }
+      };
+      rows = S.stocks.filter(s => s.cagr && inCut(s));
+      const tie = (a, b) => {
+        const ra = rank.has(a.sym) ? rank.get(a.sym) : Infinity, rb = rank.has(b.sym) ? rank.get(b.sym) : Infinity;
+        return (ra - rb) || a.sym.localeCompare(b.sym);
+      };
+      rows.sort((a, b) => {
+        const va = val(a), vb = val(b);
+        let c;
+        if (typeof va === "string") c = va.localeCompare(vb) * S.sortDir;
+        else {
+          const na = va !== va, nb = vb !== vb;
+          c = (na || nb) ? (na === nb ? 0 : na ? 1 : -1) : (va - vb) * S.sortDir;
+        }
+        return c || tie(a, b);
+      });
+    }
+
+    const base = q ? 50 : 15;
+    const shown = S.showAll ? rows : rows.slice(0, base);
+    const cols = "<colgroup>" + COLS.map(c => "<col" + (c.w ? " style='width:" + c.w + "px'" : "") + ">").join("") + "</colgroup>";
+    const head = "<thead><tr>" + COLS.map(c =>
+      "<th class='" + c.cls + "'" + (c.k !== "mk" ? " data-k='" + c.k + "'" : "") + (c.tip ? " title='" + esc(c.tip) + "'" : "") +
+      (!q && c.k === S.sortKey ? " aria-sort='" + (S.sortDir > 0 ? "ascending" : "descending") + "'" : "") + ">" + esc(c.label) + "</th>").join("") + "</tr></thead>";
+
+    let body;
+    if (!shown.length) {
+      body = "<tbody><tr class='empty'><td colspan='" + COLS.length + "'>" + (q
+        ? "No stock matches “" + esc(q) + "”."
+        : "Nothing loaded yet. Search for a ticker or company above to load it, or use Load all to rank the whole index.") + "</td></tr></tbody>";
+    } else {
+      body = "<tbody>" + shown.map(s => {
+        const ok = !!s.cagr, st = ok ? getStats(s) : null, sc = ok ? score(s) : NaN, shv = ok ? sharpe(s) : NaN;
+        const since = ok ? pct(sinceCagr(s)) : s.err ? "failed" : s.queued ? "loading…" : "–";
+        return "<tr tabindex='0' data-sym='" + esc(s.sym) + "'" + (S.pins.includes(s.sym) ? " class='pinned'" : "") + ">" +
+          "<td class='mk'><i></i></td><td class='sym l'>" + esc(s.sym) + "</td><td class='l' title='" + esc(s.name) + "'>" + esc(s.name) + "</td>" +
+          "<td class='l dim'>" + esc(s.sector) + "</td>" +
+          "<td class='r'>" + (ok ? monthLabel(s.m0) : "–") + "</td><td class='r'>" + (ok ? YEARS[s.j0].toFixed(1) : "–") + "</td>" +
+          "<td class='r'>" + since + "</td><td class='r'>" + (ok ? pct(st.mean) : "–") + "</td><td class='r'>" + (ok ? pc(st.sd) : "–") + "</td>" +
+          "<td class='r'>" + pct(sc) + "</td><td class='r'>" + sh(shv) + "</td><td class='r'" +
+          (R.sum.has(s.sym) ? " title='LB rank " + R.rs.get(s.sym) + " + Score rank " + R.rp.get(s.sym) + "'" : "") + ">" +
+          (R.sum.has(s.sym) ? R.sum.get(s.sym) : "–") + "</td><td class='r'>" + (rank.has(s.sym) ? rank.get(s.sym) : "–") + "</td></tr>";
+      }).join("") + "</tbody>";
+    }
+    $("#tbl").innerHTML = cols + head + body;
+
+    const more = $("#more");
+    more.hidden = rows.length <= base;
+    more.textContent = S.showAll ? "Show fewer" : "Show all " + rows.length;
+
+    $("#tnote").textContent = "LB = μ − " + (S.k != 1 ? S.k : "") + "σ. Score = (μ − rf) ÷ σ with rf = " + S.rf[S.mode] + "%. Agg = LB rank + Score rank, lower is better. All use entry months held at least " + S.minYears +
+      (S.minYears === 1 ? " year" : " years") + ", for stocks with at least " + CONFIG.minEntries + " entry months. " + (loadedN
+        ? "Rank is by " + (S.rankBy === "sum" ? "Agg" : S.rankBy === "sharpe" ? "Score" : "LB") + ", among " + R.n + " scored stocks of the " + loadedN + " loaded." + (q ? " Search results are ordered by match." : "")
+        : "Rank appears once prices are loaded.")
+        + (S.cut != null ? " Only stocks whose first month is in " + S.cut + " or earlier are listed and ranked." : "");
+  }
+
+  function renderPins() {
+    $("#pins").innerHTML = S.pins.map(sym => {
+      const s = bySym.get(sym), st = s && !s.cagr ? (s.err ? " (failed)" : " …") : "";
+      return "<button type='button' class='chip' data-sym='" + esc(sym) + "' aria-label='Remove " + esc(sym) + "'>" + esc(sym) + st + "<span aria-hidden='true'>×</span></button>";
+    }).join("") + (S.pins.length > 1 ? "<button type='button' class='link' id='clear'>Clear all</button>" : "") +
+      (S.pins.length ? "" : "<span class='note'>Search a stock and press Enter, or click a line or a table row, to pin it and see its distribution.</span>");
+  }
+
+  function renderStatus() {
+    const total = S.stocks.length, loaded = S.stocks.filter(s => s.cagr).length;
+    const failed = S.stocks.filter(s => s.err && !s.queued);
+    let t;
+    if (!total) t = "Loading the S&amp;P 500 list…";
+    else if (S.loading) t = "<span>Loading prices, " + S.done + " of " + S.total + "…</span><button type='button' class='btn' id='stop'>Stop</button>";
+    else if (loaded < total) t = "<span>" + total + " stocks in the index, " + loaded + " loaded.</span><button type='button' class='btn' id='loadall'>Load all " + (total - loaded) + " remaining</button><span>About one to two minutes the first time.</span>";
+    else t = "<span>All " + total + " stocks loaded.</span>";
+    if (!S.loading && failed.length) {
+      t += "<span>" + failed.length + " failed (" + esc(failed.slice(0, 6).map(s => s.sym).join(", ")) + (failed.length > 6 ? ", …" : "") + ").</span><button type='button' class='link' id='retry'>Retry</button>";
+    }
+    $("#status").innerHTML = t;
+    $("#bar i").style.width = (S.loading && S.total ? S.done / S.total * 100 : 0) + "%";
+    $("#bar").style.visibility = S.loading ? "visible" : "hidden";
+  }
+
+  function renderAll() { drawAll(); renderTable(); renderPins(); renderStatus(); renderHists(); }
+  let timer = 0;
+  const schedule = () => { if (!timer) timer = setTimeout(() => { timer = 0; renderAll(); }, 400); };
+  const flush = () => { clearTimeout(timer); timer = 0; renderAll(); };
+
+  /* ---------------- events ---------------- */
+  $("#mode").addEventListener("click", e => {
+    const b = e.target.closest("button"); if (!b) return;
+    S.mode = b.dataset.v;
+    $("#rf").value = S.rf[S.mode];
+    document.querySelectorAll("#mode button").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+    [...S.stocks, ...[...bySym.values()].filter(s => s.ext)].forEach(s => { if (s.c) computeStock(s); });
+    renderAll();
+  });
+  $("#miny").addEventListener("change", e => { S.minYears = +e.target.value; renderAll(); });
+  $("#yr").addEventListener("change", e => { S.yr = e.target.value; renderAll(); });
+  $("#band").addEventListener("change", e => { S.band = e.target.checked; renderAll(); });
+  $("#k").addEventListener("input", e => { S.k = Math.max(0, parseFloat(e.target.value) || 0); renderAll(); });
+  $("#rf").addEventListener("input", e => { const v = parseFloat(e.target.value); if (v === v) { S.rf[S.mode] = v; renderAll(); } });
+  async function addExt(raw) {
+    const sym = raw.trim().toUpperCase(), msg = $("#extmsg");
+    if (!sym) return;
+    const known = bySym.get(sym);
+    if (known && !known.ext) { msg.textContent = sym + " is already in the index. Search it above and pin it."; return; }
+    if (!known) {
+      msg.textContent = "Loading " + sym + "…";
+      try {
+        const d = await fetchMonthly(sym, true); // not cached: kept only for this visit
+        const s = { sym, name: d.name || sym, sector: "Outside the index", cagr: null, err: null, queued: false, ext: true, cur: d.cur };
+        applyData(s, d);
+        bySym.set(sym, s);
+      } catch (e) {
+        msg.textContent = "Could not load " + sym + ": " + ((e && e.message) || "failed") + ". Use Yahoo’s format, such as 7203.T or 0700.HK.";
+        return;
+      }
+    }
+    msg.textContent = "";
+    if (!S.pins.includes(sym)) S.pins.push(sym);
+    renderAll();
+  }
+  $("#ext").addEventListener("keydown", e => {
+    if (e.key === "Enter") { addExt(e.target.value); e.target.value = ""; }
+  });
+  $("#cut").addEventListener("input", e => {
+    const v = parseInt(e.target.value, 10);
+    S.cut = v >= 1900 && v <= 2100 ? v : null;
+    renderAll();
+  });
+  $("#rankby").addEventListener("click", e => {
+    const b = e.target.closest("button"); if (!b) return;
+    S.rankBy = b.dataset.v;
+    S.sortKey = S.rankBy === "sum" ? "rsum" : S.rankBy;
+    S.sortDir = S.rankBy === "sum" ? 1 : -1;
+    document.querySelectorAll("#rankby button").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+    renderAll();
+  });
+
+  let qTimer = 0;
+  $("#q").addEventListener("input", e => {
+    S.q = e.target.value; renderTable();
+    clearTimeout(qTimer);
+    qTimer = setTimeout(() => {
+      const q = S.q.trim().toLowerCase(), m = matches();
+      if (!q) return;
+      (q.length >= 2 ? m.slice(0, 8) : m.filter(s => s.sym.toLowerCase() === q)).forEach(s => request(s, true));
+    }, 250);
+  });
+  $("#q").addEventListener("keydown", e => {
+    if (e.key === "Escape") { e.target.value = ""; S.q = ""; renderTable(); }
+    if (e.key === "Enter") {
+      const best = matches()[0];
+      if (!best) return;
+      pin(best.sym);
+      e.target.value = ""; S.q = "";
+      renderAll();
+    }
+  });
+  $("#tbl").addEventListener("click", e => {
+    const th = e.target.closest("th[data-k]");
+    if (th) {
+      const k = th.dataset.k;
+      if (S.sortKey === k) S.sortDir *= -1; else { S.sortKey = k; S.sortDir = ASC.has(k) ? 1 : -1; }
+      return renderTable();
+    }
+    const tr = e.target.closest("tbody tr[data-sym]"); if (tr) togglePin(tr.dataset.sym);
+  });
+  $("#tbl").addEventListener("keydown", e => {
+    if ((e.key === "Enter" || e.key === " ") && e.target.matches("tbody tr[data-sym]")) { e.preventDefault(); togglePin(e.target.dataset.sym); }
+  });
+  $("#more").addEventListener("click", () => { S.showAll = !S.showAll; renderTable(); });
+  $("#pins").addEventListener("click", e => {
+    if (e.target.closest("#clear")) { S.pins = []; syncHash(); return renderAll(); }
+    const b = e.target.closest(".chip"); if (b) togglePin(b.dataset.sym);
+  });
+  $("#status").addEventListener("click", e => {
+    if (e.target.closest("#loadall")) { loadAll(); renderStatus(); }
+    else if (e.target.closest("#stop")) stopLoading();
+    else if (e.target.closest("#retry")) { S.stocks.filter(s => s.err && !s.cagr).forEach(s => request(s, false)); renderStatus(); }
+  });
+  new ResizeObserver(resize).observe($("#plot"));
+
+  /* ---------------- start ---------------- */
+  (async () => {
+    renderAll();
+    try {
+      const list = await loadConstituents();
+      const seen = new Set();
+      S.stocks = list.filter(x => !seen.has(x.sym) && seen.add(x.sym)).map(x => ({ ...x, cagr: null, err: null, queued: false }));
+      bySym = new Map(S.stocks.map(s => [s.sym, s]));
+      S.pins = decodeURIComponent(location.hash.slice(1)).split(",").map(x => x.trim().toUpperCase()).filter(x => bySym.has(x));
+      S.pins.forEach(sym => request(bySym.get(sym), true)); // only the pinned ones are fetched
+      renderAll();
+      hydrate();                                            // cached stocks fill in with no network
+    } catch (e) {
+      $("#status").textContent = "Could not load the S&P 500 list: " + (e && e.message ? e.message : e);
+    }
+  })();
+})();
+</script>
+</body>
+</html>
