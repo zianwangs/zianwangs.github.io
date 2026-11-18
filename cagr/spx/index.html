@@ -495,7 +495,7 @@
 
   // share of index stocks the outside stock beats on each measure
   function vsIndex(s) {
-    const P = ranks().pool, st = getStats(s), sc = score(s), sp = sharpe(s);
+    const P = ranks().pool.filter(x => x.s !== s), st = getStats(s), sc = score(s), sp = sharpe(s);
     if (!P.length || sc !== sc || sp !== sp) return null;
     const share = (get, v, lowerIsBetter) => P.filter(x => lowerIsBetter ? get(x) > v : get(x) < v).length / P.length;
     return {
@@ -820,7 +820,7 @@
     const rkLine = (sym, RR, ext) => RR.sel.has(sym)
       ? "<p class='rk'>" + (ext ? "Outside the index. Would rank " : "Rank ") + "<b>#" + RR.sel.get(sym) + "</b> of " + RR.n + " by " + selLabel + (loadedN < S.stocks.length ? ", loaded so far" : "") + "</p>"
       : "<p class='rk'>Not ranked: " + (!ext && !inCut(bySym.get(sym)) ? "first month is after " + S.cut + "." : "needs " + CONFIG.minEntries + " entry months at this minimum hold.") + "</p>";
-    const vsLine = v => "<p class='rk'>Beats " + Math.round(v.mu * 100) + "% on μ, " +
+    const vsLine = (v, ext) => "<p class='rk'>Beats " + Math.round(v.mu * 100) + "% on μ, " +
       Math.round(v.sd * 100) + "% on σ (tighter), " + Math.round(v.score * 100) + "% on LB, " + Math.round(v.sharpe * 100) + "% on Score</p>";
     const rkv = (m, sym, hash) => m.has(sym) ? (hash ? "#" : "") + m.get(sym) : "–";
     $("#cards").innerHTML = S.pins.map(sym => {
@@ -830,8 +830,8 @@
       if (!s.cagr) return "<div class='card'>" + head + "<p class='note'>" + (s.err ? "Could not load prices: " + esc(s.err) : "Loading prices…") + "</p></div>";
       const st = getStats(s);
       if (st.n < 2) return "<div class='card'>" + head + "<p class='note'>Not enough entry months at this minimum hold.</p></div>";
-      const RR = s.ext ? wouldBe(s) : R, vs = s.ext ? vsIndex(s) : null;
-      return "<div class='card'>" + head + rkLine(sym, RR, s.ext) + (vs ? vsLine(vs) : "") + "<canvas data-sym='" + esc(sym) + "' aria-label='Histogram of " + esc(sym) + " entry-month CAGR'></canvas>" +
+      const RR = s.ext ? wouldBe(s) : R, vs = vsIndex(s);
+      return "<div class='card'>" + head + rkLine(sym, RR, s.ext) + (vs ? vsLine(vs, s.ext) : "") + "<canvas data-sym='" + esc(sym) + "' aria-label='Histogram of " + esc(sym) + " entry-month CAGR'></canvas>" +
         "<div class='kv'>" + kv("Mean μ", pct(st.mean)) + kv("Std σ", pc(st.sd)) + kv("Median", pct(st.med)) +
         kv("LB", pct(score(s))) + kv("Score, rf " + S.rf[S.mode] + "%", sh(sharpe(s))) + kv("Skew", st.skew.toFixed(2)) +
         kv("10th percentile", pct(st.p10)) + kv("90th percentile", pct(st.p90)) + kv("Entry months", st.n) +
