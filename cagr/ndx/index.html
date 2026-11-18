@@ -756,6 +756,7 @@
     });
     if (!list.length && !q) { tip.hidden = true; return; }
     let html = "Entry " + monthLabel(NOW_M - h.j) + ", held " + YEARS[h.j].toFixed(1) + " years";
+    list.sort((a, b) => b.s.cagr[b.jj] - a.s.cagr[a.jj]);
     list.forEach(({ s, jj }) => {
       const p = s[S.mode][NOW_M - jj - s.m0];
       html += "<div class='r'><b>" + esc(s.sym) + "</b><span>" + pct(s.cagr[jj]) + "</span></div>" +
