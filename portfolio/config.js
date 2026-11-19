@@ -60,6 +60,15 @@ window.PORTFOLIO_CONFIG = {
         { symbol: "PDD",     side: "long", startPrice: 80.5, weight: 1 },
         { symbol: "NTES",    side: "long", startPrice: 129.65, weight: 1 },
       ]
+    },
+    {
+      name: "工根错节",
+      note: "Long ICBC, Short JPMorgan Chase & Co.",
+      startDate: "2026-11-19",
+      legs: [
+        { symbol: "1398.HK", side: "long",  startPrice: 7.9,    weight: 1 },
+        { symbol: "JPM",     side: "short", startPrice: 324.11, weight: 1 },
+      ]
     }
   ]
 };
